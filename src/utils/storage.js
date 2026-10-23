@@ -1,4 +1,10 @@
 import livePricingJson from '../data/livePricing.json';
+import { 
+  syncPricingToCloud, 
+  fetchPricingFromCloud, 
+  subscribeToPricingChanges, 
+  syncBookingToCloud 
+} from './firebase';
 
 const STORAGE_KEYS = {
   USER: 'tisna_user',
@@ -185,13 +191,18 @@ export const storage = {
         broadcastChannel.postMessage({ type: 'PRICING_UPDATED', pricing: newPricing });
       }
 
-      // 3. Persist to server on disk so other browsers/phones/incognito windows load it
+      // 3. Persist to Firebase Cloud (Firestore & Realtime Database)
+      syncPricingToCloud(newPricing).catch(err => {
+        console.warn('Firebase pricing sync note:', err);
+      });
+
+      // 4. Persist to local server on disk if dev server running
       fetch('/api/pricing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPricing)
       }).catch(err => {
-        console.warn('Server pricing sync note:', err);
+        // silent note
       });
     } catch (e) {
       console.error(e);
@@ -205,6 +216,7 @@ export const storage = {
       if (broadcastChannel) {
         broadcastChannel.postMessage({ type: 'PRICING_UPDATED', pricing: DEFAULT_PRICING });
       }
+      syncPricingToCloud(DEFAULT_PRICING).catch(() => {});
       fetch('/api/pricing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -215,10 +227,36 @@ export const storage = {
     }
   },
 
-  // Auto-sync prices from server on startup for other tabs/browsers/devices
+  // Auto-sync prices from Firebase Cloud & server on startup
   initServerSync: async () => {
     try {
       if (typeof window === 'undefined') return;
+
+      // 1. Realtime listener from Firebase Cloud
+      subscribeToPricingChanges((cloudPricing) => {
+        if (cloudPricing && typeof cloudPricing === 'object') {
+          const localStr = localStorage.getItem(STORAGE_KEYS.PRICING);
+          const cloudStr = JSON.stringify(cloudPricing);
+          if (localStr !== cloudStr) {
+            localStorage.setItem(STORAGE_KEYS.PRICING, cloudStr);
+            window.dispatchEvent(new Event('tisna_pricing_updated'));
+          }
+        }
+      });
+
+      // 2. Initial fetch from Firebase Cloud
+      const cloudData = await fetchPricingFromCloud();
+      if (cloudData && typeof cloudData === 'object') {
+        const localStr = localStorage.getItem(STORAGE_KEYS.PRICING);
+        const cloudStr = JSON.stringify(cloudData);
+        if (localStr !== cloudStr) {
+          localStorage.setItem(STORAGE_KEYS.PRICING, cloudStr);
+          window.dispatchEvent(new Event('tisna_pricing_updated'));
+          return;
+        }
+      }
+
+      // 3. Fallback to local server API
       const res = await fetch('/api/pricing');
       if (res.ok) {
         const serverData = await res.json();
@@ -323,7 +361,12 @@ export const storage = {
     bookings.unshift(newBooking);
     localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
 
-    // Save permanently on server so Admin can see it across all devices
+    // 1. Sync to Firebase Cloud (Firestore & Realtime Database)
+    syncBookingToCloud(newBooking).catch(err => {
+      console.warn('Firebase booking sync note:', err);
+    });
+
+    // 2. Also persist to local dev server disk if running
     fetch('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -340,7 +383,7 @@ export const storage = {
         return {
           ...b,
           paymentStatus: newStatus,
-          status: newStatus === 'Payment Verified' ? 'Confirmed' : b.status,
+          status: newStatus === 'Payment Verified' ? 'Confirmed' : 'Payment Verification Pending',
           statusColor: newStatus === 'Payment Verified' ? 'emerald' : 'amber'
         };
       }
@@ -349,6 +392,12 @@ export const storage = {
     localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(updated));
     const target = updated.find(b => b.id === bookingId);
     if (target) {
+      // 1. Sync to Firebase Cloud
+      syncBookingToCloud(target).catch(err => {
+        console.warn('Firebase booking status sync note:', err);
+      });
+
+      // 2. Local dev server disk
       fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -5,6 +5,7 @@ import {
   User, Clock, ShieldCheck, Tag 
 } from 'lucide-react';
 import { storage, DEFAULT_PRICING } from '../utils/storage';
+import { fetchBookingsFromCloud, subscribeToBookings } from '../utils/firebase';
 
 export default function AdminPriceModal({ isOpen, onClose }) {
   const [pricing, setPricing] = useState(storage.getPricing());
@@ -20,6 +21,22 @@ export default function AdminPriceModal({ isOpen, onClose }) {
 
   const loadBookings = async () => {
     setIsLoadingBookings(true);
+    // 1. Fetch from Firebase Cloud
+    try {
+      const cloudData = await fetchBookingsFromCloud();
+      if (Array.isArray(cloudData) && cloudData.length > 0) {
+        setBookings(cloudData);
+        try {
+          localStorage.setItem('tisna_bookings', JSON.stringify(cloudData));
+        } catch {}
+        setIsLoadingBookings(false);
+        return;
+      }
+    } catch (err) {
+      console.warn("Firebase bookings load note:", err);
+    }
+
+    // 2. Fetch from local server API if running
     try {
       const res = await fetch('/api/bookings');
       if (res.ok) {
@@ -34,6 +51,8 @@ export default function AdminPriceModal({ isOpen, onClose }) {
         }
       }
     } catch {}
+
+    // 3. Fallback to localStorage
     setBookings(storage.getBookings());
     setIsLoadingBookings(false);
   };
@@ -49,6 +68,23 @@ export default function AdminPriceModal({ isOpen, onClose }) {
       }
     }
   }, [isOpen]);
+
+  // Live real-time booking updates from Firebase
+  useEffect(() => {
+    if (isOpen && isUnlocked) {
+      const unsub = subscribeToBookings((liveList) => {
+        if (Array.isArray(liveList) && liveList.length > 0) {
+          setBookings(liveList);
+          try {
+            localStorage.setItem('tisna_bookings', JSON.stringify(liveList));
+          } catch {}
+        }
+      });
+      return () => {
+        if (unsub) unsub();
+      };
+    }
+  }, [isOpen, isUnlocked]);
 
   if (!isOpen) return null;
 
@@ -66,39 +102,8 @@ export default function AdminPriceModal({ isOpen, onClose }) {
 
   const handleToggleVerification = async (bookingId, currentStatus) => {
     const newStatus = currentStatus === 'Payment Verified' ? 'Payment Pending Verification' : 'Payment Verified';
-    
-    // 1. Update state immediately in UI
-    const updated = bookings.map(b => {
-      if (b.id === bookingId) {
-        return {
-          ...b,
-          paymentStatus: newStatus,
-          status: newStatus === 'Payment Verified' ? 'Confirmed' : 'Payment Verification Pending',
-          statusColor: newStatus === 'Payment Verified' ? 'emerald' : 'amber'
-        };
-      }
-      return b;
-    });
+    const updated = storage.updateBookingPaymentStatus(bookingId, newStatus);
     setBookings(updated);
-
-    // 2. Save in localStorage
-    try {
-      localStorage.setItem('tisna_bookings', JSON.stringify(updated));
-    } catch {}
-
-    // 3. Persist directly to server file so refresh ALWAYS keeps it verified!
-    const target = updated.find(b => b.id === bookingId);
-    if (target) {
-      try {
-        await fetch('/api/bookings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(target)
-        });
-      } catch (err) {
-        console.warn('Booking status sync error:', err);
-      }
-    }
   };
 
   const handlePriceChange = (section, subkey, value) => {
