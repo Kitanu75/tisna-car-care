@@ -1554,52 +1554,7 @@ body {
   background: #1EBE5D;
 }
 
-/* Trust Badges Strip (Reference Design) */
-.trust-strip-container {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  padding: 12px 20px 6px;
-}
-
-.trust-strip-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 8px 4px;
-  background: var(--gray-50);
-  border: 1px solid var(--gray-100);
-  border-radius: 10px;
-  transition: all 0.2s ease;
-}
-
-.trust-strip-item:hover {
-  background: var(--white);
-  border-color: var(--primary-light);
-  box-shadow: 0 3px 10px rgba(8, 102, 232, 0.08);
-}
-
-.trust-strip-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: var(--primary-light);
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 4px;
-}
-
-.trust-strip-title {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--gray-800);
-  line-height: 1.2;
-}
-
-/* Plan Cards V2 (Reference Design from User) */
+/* Plan Cards V2 */
 .plans-grid-v2 {
   display: flex;
   flex-direction: column;
@@ -1620,13 +1575,13 @@ body {
 
 .plan-card-v2:hover {
   border-color: #93C5FD;
-  box-shadow: 0 6px 20px rgba(8, 102, 232, 0.08);
+  box-shadow: 0 4px 16px rgba(8, 102, 232, 0.08);
 }
 
 .plan-card-v2.selected {
   border-color: var(--primary);
   background: #F8FAFF;
-  box-shadow: 0 6px 20px rgba(8, 102, 232, 0.12);
+  box-shadow: 0 4px 16px rgba(8, 102, 232, 0.12);
 }
 
 .plan-card-v2.popular {
@@ -1667,9 +1622,9 @@ body {
 }
 
 .plan-type-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   background: var(--primary-light);
   color: var(--primary);
   display: flex;
@@ -1715,11 +1670,11 @@ body {
   color: var(--gray-400);
 }
 
-/* Feature Bullet List (Like Reference Design) */
+/* Feature Bullet List */
 .plan-card-features {
   list-style: none;
   padding: 0;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1741,6 +1696,10 @@ body {
   flex-shrink: 0;
 }
 
+.plan-feature-extra {
+  animation: fadeIn 0.2s ease;
+}
+
 /* Action row inside plan card */
 .plan-card-action-row {
   display: flex;
@@ -1750,10 +1709,11 @@ body {
   border-top: 1px solid var(--gray-100);
 }
 
-.plan-view-details-btn {
+/* Inline More / Less Toggle Button */
+.plan-more-toggle-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   background: none;
   border: none;
   color: var(--primary);
@@ -1762,217 +1722,13 @@ body {
   cursor: pointer;
   padding: 4px 0;
   transition: all 0.2s ease;
+  font-family: inherit;
 }
 
-.plan-view-details-btn:hover {
+.plan-more-toggle-btn:hover {
   color: var(--primary-dark);
-  transform: translateX(2px);
 }
 
-/* Plan Modal Popup (What's Extra & Full Breakdown) */
-.plan-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(4px);
-  z-index: 100;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  animation: fadeIn 0.2s ease;
-}
-
-@media (min-width: 640px) {
-  .plan-modal-overlay {
-    align-items: center;
-    padding: 20px;
-  }
-}
-
-.plan-modal-container {
-  background: var(--white);
-  width: 100%;
-  max-width: 480px;
-  border-radius: 24px 24px 0 0;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
-  animation: slideUp 0.25s ease;
-}
-
-@media (min-width: 640px) {
-  .plan-modal-container {
-    border-radius: 20px;
-    max-height: 80vh;
-  }
-}
-
-.plan-modal-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--gray-100);
-  background: var(--white);
-}
-
-.plan-modal-badge {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 800;
-  text-transform: uppercase;
-  background: var(--primary-light);
-  color: var(--primary);
-  padding: 3px 8px;
-  border-radius: 8px;
-  margin-bottom: 4px;
-}
-
-.plan-modal-header h3 {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--gray-900);
-}
-
-.plan-modal-sub {
-  font-size: 12px;
-  color: var(--gray-500);
-  margin-top: 2px;
-}
-
-.plan-modal-close-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: var(--gray-100);
-  color: var(--gray-600);
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.plan-modal-close-btn:hover {
-  background: var(--gray-200);
-}
-
-.plan-modal-body {
-  padding: 18px 20px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* What's Extra Highlight Card */
-.whats-extra-highlight-card {
-  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-  border: 1.5px solid #93C5FD;
-  border-radius: 14px;
-  padding: 14px;
-}
-
-.whats-extra-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 6px;
-}
-
-.whats-extra-title h4 {
-  font-size: 14px;
-  font-weight: 800;
-  color: #1E40AF;
-}
-
-.whats-extra-desc {
-  font-size: 13px;
-  color: #1E3A8A;
-  line-height: 1.45;
-  font-weight: 600;
-}
-
-.modal-inclusions-wrap h4 {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--gray-900);
-  margin-bottom: 10px;
-}
-
-.modal-inclusions-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.modal-inclusion-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 13px;
-  color: var(--gray-700);
-  line-height: 1.4;
-}
-
-.modal-check-dot {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #DCFCE7;
-  color: #15803D;
-  font-size: 11px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-.modal-schedule-card {
-  background: var(--gray-50);
-  border: 1px solid var(--gray-200);
-  border-radius: 12px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--gray-600);
-}
-
-.schedule-row {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.schedule-row strong {
-  color: var(--gray-800);
-}
-
-.plan-modal-footer {
-  padding: 14px 20px;
-  border-top: 1px solid var(--gray-100);
-  background: var(--white);
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
 
 
 
