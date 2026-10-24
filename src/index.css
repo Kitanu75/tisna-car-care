@@ -1450,6 +1450,52 @@ body {
   gap: 8px;
 }
 
+/* Navbar Brand Logo */
+.navbar-brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-brand-img {
+  height: 44px;
+  max-width: 170px;
+  object-fit: contain;
+}
+
+/* Vector Design Car Card Icon (No Photo Cutouts) */
+.car-card-design-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 14px;
+  transition: all 0.2s ease;
+}
+
+.car-card.selected .car-card-design-icon {
+  background: rgba(8, 102, 232, 0.2);
+  color: var(--primary);
+}
+
+/* Direct WhatsApp Submit Button */
+.btn-whatsapp {
+  background: #25D366;
+  color: var(--white);
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.4);
+  font-weight: 700;
+}
+
+.btn-whatsapp:hover {
+  background: #1EBE5D;
+}
+
+
 
 
 

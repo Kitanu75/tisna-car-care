@@ -16,7 +16,7 @@ export default function Footer() {
           <span>Call Us</span>
         </a>
         <a
-          href={`https://wa.me/${wa}?text=Hi%20Tisna%20Car%20Care`}
+          href={`https://wa.me/${wa}?text=Hi%20Tisna%20Car`}
           target="_blank"
           rel="noopener noreferrer"
           className="footer-link"
@@ -28,7 +28,7 @@ export default function Footer() {
         </a>
       </div>
       <div className="footer-copyright">
-        © {new Date().getFullYear()} Tisna Car Care. All rights reserved.
+        © {new Date().getFullYear()} Tisna Car. All rights reserved.
       </div>
     </footer>
   );

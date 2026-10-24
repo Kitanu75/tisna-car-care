@@ -1,27 +1,27 @@
-// Car segment data matching Figma reference (Jeep removed, examples in subtitle, no model dropdown needed)
+// Car segment data matching Figma PDF Page 1 (Vector design style, no photo cutouts, exact Figma subtitles)
 export const CAR_TYPE_INFO = {
   hatchback: {
     id: 'hatchback',
     label: 'Small Hatchback',
-    subtitle: 'e.g. Alto, WagonR, i10, Swift',
-    image: '/assets/hatchback-car.jpg'
+    subtitle: 'Alto, WagonR, i10, Swift',
+    iconType: 'hatchback'
   },
   sedan: {
     id: 'sedan',
     label: 'Sedan',
-    subtitle: 'e.g. Dzire, City, Verna, Virtus',
-    image: '/assets/honda-city.png'
+    subtitle: 'Dzire, City, Verna, Virtus',
+    iconType: 'sedan'
   },
   suv: {
     id: 'suv',
     label: 'SUV',
-    subtitle: 'e.g. Creta, Seltos, Harrier',
-    image: '/assets/suv-car.jpg'
+    subtitle: 'Creta, Seltos, Harrier',
+    iconType: 'suv'
   },
   luxury: {
     id: 'luxury',
     label: 'Luxury',
-    subtitle: 'e.g. BMW, Audi, Mercedes',
-    image: '/assets/luxury-car.jpg'
+    subtitle: 'BMW, Audi, Mercedes',
+    iconType: 'luxury'
   }
 };
