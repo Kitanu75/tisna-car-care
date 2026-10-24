@@ -1,9 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  X, Check, Save, RotateCcw, Lock, KeyRound, 
-  Calendar, Phone, MapPin, Car, MessageCircle, 
-  User, Clock, ShieldCheck, Tag 
-} from 'lucide-react';
 import { storage, DEFAULT_PRICING } from '../utils/storage';
 import { fetchBookingsFromCloud, subscribeToBookings } from '../utils/firebase';
 
@@ -13,46 +8,30 @@ export default function AdminPriceModal({ isOpen, onClose }) {
   const [isUnlocked, setIsUnlocked] = useState(sessionStorage.getItem('tisna_admin_unlocked') === 'true');
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState('');
-  const [activeTab, setActiveTab] = useState('bookings'); // 'bookings' | 'pricing'
+  const [activeTab, setActiveTab] = useState('bookings');
   const [bookings, setBookings] = useState([]);
   const [isLoadingBookings, setIsLoadingBookings] = useState(false);
 
   const ADMIN_PIN = "2026";
+  const carCategories = ['hatchback', 'sedan', 'suv', 'luxury'];
 
   const loadBookings = async () => {
     setIsLoadingBookings(true);
-    // 1. Fetch from Firebase Cloud
     try {
       const cloudData = await fetchBookingsFromCloud();
       if (Array.isArray(cloudData) && cloudData.length > 0) {
         setBookings(cloudData);
-        try {
-          localStorage.setItem('tisna_bookings', JSON.stringify(cloudData));
-        } catch {}
         setIsLoadingBookings(false);
         return;
       }
-    } catch (err) {
-      console.warn("Firebase bookings load note:", err);
-    }
-
-    // 2. Fetch from local server API if running
+    } catch {}
     try {
       const res = await fetch('/api/bookings');
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data)) {
-          setBookings(data);
-          try {
-            localStorage.setItem('tisna_bookings', JSON.stringify(data));
-          } catch {}
-          setIsLoadingBookings(false);
-          return;
-        }
+        if (Array.isArray(data)) { setBookings(data); setIsLoadingBookings(false); return; }
       }
     } catch {}
-
-    // 3. Fallback to localStorage
     setBookings(storage.getBookings());
     setIsLoadingBookings(false);
   };
@@ -69,20 +48,12 @@ export default function AdminPriceModal({ isOpen, onClose }) {
     }
   }, [isOpen]);
 
-  // Live real-time booking updates from Firebase
   useEffect(() => {
     if (isOpen && isUnlocked) {
-      const unsub = subscribeToBookings((liveList) => {
-        if (Array.isArray(liveList) && liveList.length > 0) {
-          setBookings(liveList);
-          try {
-            localStorage.setItem('tisna_bookings', JSON.stringify(liveList));
-          } catch {}
-        }
+      const unsub = subscribeToBookings((list) => {
+        if (Array.isArray(list) && list.length > 0) setBookings(list);
       });
-      return () => {
-        if (unsub) unsub();
-      };
+      return () => { if (unsub) unsub(); };
     }
   }, [isOpen, isUnlocked]);
 
@@ -96,7 +67,7 @@ export default function AdminPriceModal({ isOpen, onClose }) {
       setPinError('');
       loadBookings();
     } else {
-      setPinError('Incorrect PIN. Please try again.');
+      setPinError('Incorrect PIN');
     }
   };
 
@@ -106,38 +77,11 @@ export default function AdminPriceModal({ isOpen, onClose }) {
     setBookings(updated);
   };
 
-  const handlePriceChange = (section, subkey, value) => {
-    const num = value === '' ? '' : Number(value);
-    setPricing(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [subkey]: num
-      }
-    }));
-  };
-
   const handleNestedPriceChange = (section, category, subkey, value) => {
     const num = value === '' ? '' : Number(value);
     setPricing(prev => ({
       ...prev,
-      [section]: {
-        ...prev[section],
-        [category]: {
-          ...prev[section][category],
-          [subkey]: num
-        }
-      }
-    }));
-  };
-
-  const handlePaymentChange = (field, value) => {
-    setPricing(prev => ({
-      ...prev,
-      payment: {
-        ...prev.payment,
-        [field]: value
-      }
+      [section]: { ...prev[section], [category]: { ...prev[section]?.[category], [subkey]: num } }
     }));
   };
 
@@ -145,652 +89,179 @@ export default function AdminPriceModal({ isOpen, onClose }) {
     const pct = percent === '' ? '' : (parseFloat(percent) || 0);
     setPricing(prev => ({
       ...prev,
-      discounts: {
-        ...prev.discounts,
-        [durationKey]: pct
-      }
-    }));
-  };
-
-  const handlePhoneChange = (val) => {
-    const digits = val.replace(/\D/g, '');
-    let wa = digits;
-    if (digits.length === 10) wa = `91${digits}`;
-    else if (digits.length === 12 && digits.startsWith('91')) wa = digits;
-
-    setPricing(prev => ({
-      ...prev,
-      payment: {
-        ...prev.payment,
-        paymentPhone: val,
-        whatsappNumber: wa || prev.payment?.whatsappNumber || '919876543210'
-      }
+      discounts: { ...prev.discounts, [durationKey]: pct }
     }));
   };
 
   const handleSave = (e) => {
     e.preventDefault();
-    
-    // Normalize phone and whatsapp so Header, Footer, and WhatsApp buttons always match
-    const currentWa = (pricing.payment?.whatsappNumber || '').toString();
-    const currentPhone = (pricing.payment?.paymentPhone || '').toString();
-    const digits = (currentPhone || currentWa).replace(/\D/g, '');
-    const cleanWaDigits = (currentWa || currentPhone).replace(/\D/g, '');
-
-    let normalizedPhone = currentPhone;
-    if (!normalizedPhone || normalizedPhone === '+91 98765 43210') {
-      const pure10 = cleanWaDigits.replace(/^91/, '');
-      if (pure10.length === 10) {
-        normalizedPhone = `+91 ${pure10.slice(0, 5)} ${pure10.slice(5)}`;
-      }
-    } else if (!normalizedPhone.startsWith('+') && !normalizedPhone.startsWith('91')) {
-      const pure10 = digits.replace(/^91/, '');
-      if (pure10.length === 10) {
-        normalizedPhone = `+91 ${pure10.slice(0, 5)} ${pure10.slice(5)}`;
-      }
-    }
-
-    let normalizedWa = cleanWaDigits;
-    if (cleanWaDigits.length === 10) {
-      normalizedWa = `91${cleanWaDigits}`;
-    }
-
-    const updatedPricing = {
-      ...pricing,
-      payment: {
-        ...pricing.payment,
-        paymentPhone: normalizedPhone || '+91 98765 43210',
-        whatsappNumber: normalizedWa || '919876543210'
-      }
-    };
-
-    setPricing(updatedPricing);
-    storage.savePricing(updatedPricing);
+    storage.savePricing(pricing);
     setSaveSuccess(true);
-    setTimeout(() => {
-      setSaveSuccess(false);
-      onClose();
-    }, 700);
+    setTimeout(() => { setSaveSuccess(false); onClose(); }, 700);
   };
 
   const handleReset = () => {
-    if (window.confirm("Reset all prices back to initial defaults?")) {
+    if (window.confirm("Reset all prices to defaults?")) {
       storage.resetPricing();
       setPricing(DEFAULT_PRICING);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 1000);
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-white w-full max-w-2xl rounded-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-scale-up">
-        
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-          <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-100 text-[#0F7A44] flex items-center justify-center">
-              {isUnlocked ? <ShieldCheck size={18} /> : <Lock size={18} />}
+  // PIN Unlock Screen
+  if (!isUnlocked) {
+    return (
+      <div className="admin-overlay" onClick={onClose}>
+        <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 380 }}>
+          <div className="admin-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: '#E8F1FD', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0866E8' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+              <span style={{ fontWeight: 700, fontSize: 15, color: '#1E293B' }}>Admin Portal</span>
             </div>
-            <div>
-              <h3 className="font-extrabold text-gray-900 text-base">Owner Admin Portal</h3>
-              <p className="text-xs text-gray-500">Live booking dashboard & price manager</p>
-            </div>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#94A3B8' }}>✕</button>
           </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-gray-500 hover:text-gray-800 shadow-xs"
-          >
-            <X size={18} />
+          <form onSubmit={handleUnlock} style={{ padding: 24, textAlign: 'center' }}>
+            <p style={{ fontSize: 13, color: '#64748B', marginBottom: 16 }}>Enter Admin PIN to access</p>
+            <input
+              type="password"
+              className="form-input"
+              placeholder="PIN"
+              value={pinInput}
+              onChange={(e) => setPinInput(e.target.value)}
+              style={{ textAlign: 'center', fontSize: 20, letterSpacing: 8, maxWidth: 180, margin: '0 auto' }}
+              autoFocus
+              maxLength={6}
+            />
+            {pinError && <p style={{ color: '#EF4444', fontSize: 12, marginTop: 8 }}>{pinError}</p>}
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 16 }}>
+              Unlock Portal
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="admin-overlay" onClick={onClose}>
+      <div className="admin-modal" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="admin-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: '#E8F1FD', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0866E8' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+            </div>
+            <span style={{ fontWeight: 700, fontSize: 15, color: '#1E293B' }}>Admin Price & Booking Manager</span>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#94A3B8' }}>✕</button>
+        </div>
+
+        {/* Tabs */}
+        <div className="admin-tabs">
+          <button className={`admin-tab ${activeTab === 'bookings' ? 'active' : ''}`} onClick={() => setActiveTab('bookings')}>
+            Bookings ({bookings.length})
+          </button>
+          <button className={`admin-tab ${activeTab === 'pricing' ? 'active' : ''}`} onClick={() => setActiveTab('pricing')}>
+            Pricing Configuration
           </button>
         </div>
 
-        {/* PIN Security Check (Only Owner Can Access) */}
-        {!isUnlocked ? (
-          <div className="p-8 text-center space-y-4">
-            <div className="w-14 h-14 rounded-full bg-emerald-50 text-[#0F7A44] flex items-center justify-center mx-auto">
-              <KeyRound size={26} />
-            </div>
+        {/* Body */}
+        <div className="admin-body">
+          {activeTab === 'bookings' && (
             <div>
-              <h4 className="font-black text-gray-900 text-base">Owner Security Verification</h4>
-              <p className="text-xs text-gray-500 mt-1">
-                Enter your 4-digit secret PIN to access pricing controls
-              </p>
-            </div>
-
-            <form onSubmit={handleUnlock} className="max-w-xs mx-auto space-y-3">
-              <input
-                type="password"
-                maxLength={8}
-                value={pinInput}
-                onChange={(e) => setPinInput(e.target.value)}
-                placeholder="••••"
-                autoFocus
-                className="w-full text-center px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-base font-mono font-bold tracking-widest text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0F7A44]"
-              />
-
-              {pinError && (
-                <p className="text-xs text-red-500 font-bold">{pinError}</p>
+              {isLoadingBookings ? (
+                <p style={{ textAlign: 'center', color: '#94A3B8', padding: 40 }}>Loading bookings...</p>
+              ) : bookings.length === 0 ? (
+                <p style={{ textAlign: 'center', color: '#94A3B8', padding: 40 }}>No bookings recorded yet.</p>
+              ) : (
+                bookings.map((b) => (
+                  <div key={b.id} style={{
+                    background: '#F8FAFC', borderRadius: 12, padding: 16, marginBottom: 12,
+                    border: b.paymentStatus === 'Payment Verified' ? '2px solid #10B981' : '1px solid #E2E8F0'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <span style={{ fontWeight: 800, fontSize: 13, fontFamily: 'monospace', color: '#334155' }}>{b.id}</span>
+                      <span style={{
+                        fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20,
+                        background: b.paymentStatus === 'Payment Verified' ? '#D1FAE5' : '#FEF3C7',
+                        color: b.paymentStatus === 'Payment Verified' ? '#065F46' : '#92400E'
+                      }}>
+                        {b.paymentStatus === 'Payment Verified' ? 'Verified' : 'Pending Verification'}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.8 }}>
+                      <div><strong>Customer:</strong> {b.customerName || '-'} • {b.customerPhone || '-'}</div>
+                      <div><strong>Vehicle:</strong> {b.carTypeLabel || b.carType || '-'} {b.carModel ? `(${b.carModel})` : ''} • {b.carNumber || '-'}</div>
+                      <div><strong>Plan:</strong> {b.planName || '-'} ({b.durationLabel || '-'}) • ₹{(b.amount || 0).toLocaleString('en-IN')}</div>
+                      <div><strong>Address:</strong> {b.society || b.address || '-'}{b.flatNo ? `, ${b.flatNo}` : ''}</div>
+                      <div><strong>Schedule:</strong> {b.startDate || '-'} • {b.timeSlot || '-'}</div>
+                    </div>
+                    <button
+                      onClick={() => handleToggleVerification(b.id, b.paymentStatus)}
+                      style={{
+                        marginTop: 10, width: '100%', padding: '8px 0', borderRadius: 8, border: 'none',
+                        fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+                        background: b.paymentStatus === 'Payment Verified' ? '#FEE2E2' : '#D1FAE5',
+                        color: b.paymentStatus === 'Payment Verified' ? '#DC2626' : '#065F46'
+                      }}
+                    >
+                      {b.paymentStatus === 'Payment Verified' ? 'Mark as Unverified' : '✓ Mark as Payment Verified'}
+                    </button>
+                  </div>
+                ))
               )}
-
-              <button
-                type="submit"
-                className="w-full py-3 bg-[#0F7A44] hover:bg-[#0c6237] text-white font-bold text-xs rounded-xl shadow-xs transition"
-              >
-                Verify & Open Editor
-              </button>
-            </form>
-          </div>
-        ) : (
-          /* Unlocked Portal Content */
-          <div className="flex-1 flex flex-col overflow-hidden">
-            
-            {/* Top Navigation Tabs */}
-            <div className="flex items-center border-b border-gray-200 px-6 pt-3 bg-white space-x-2">
-              <button
-                onClick={() => {
-                  setActiveTab('bookings');
-                  loadBookings();
-                }}
-                className={`pb-3 px-3 text-xs font-bold border-b-2 flex items-center space-x-1.5 transition ${
-                  activeTab === 'bookings'
-                    ? 'border-[#0F7A44] text-[#0F7A44]'
-                    : 'border-transparent text-gray-500 hover:text-gray-900'
-                }`}
-              >
-                <Calendar size={14} />
-                <span>Customer Bookings ({bookings.length})</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('pricing')}
-                className={`pb-3 px-3 text-xs font-bold border-b-2 flex items-center space-x-1.5 transition ${
-                  activeTab === 'pricing'
-                    ? 'border-[#0F7A44] text-[#0F7A44]'
-                    : 'border-transparent text-gray-500 hover:text-gray-900'
-                }`}
-              >
-                <Tag size={14} />
-                <span>Edit Service Prices</span>
-              </button>
             </div>
+          )}
 
-            {/* TAB 1: CUSTOMER BOOKINGS LIST */}
-            {activeTab === 'bookings' && (
-              <div className="flex-1 overflow-y-auto p-6 space-y-4 text-xs">
-                <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-                  <div>
-                    <h4 className="font-extrabold text-sm text-gray-900">Incoming Orders & Bookings</h4>
-                    <p className="text-gray-500 text-[11px]">All customer bookings received via website and WhatsApp</p>
-                  </div>
-                  <button
-                    onClick={loadBookings}
-                    className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg text-[11px]"
-                  >
-                    Refresh
-                  </button>
+          {activeTab === 'pricing' && (
+            <form onSubmit={handleSave}>
+              {/* Basic Daily Rates */}
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 10 }}>Basic Daily Rates (₹/day)</p>
+              {carCategories.map(ct => (
+                <div key={ct} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                  <span style={{ flex: 1, fontSize: 13, color: '#475569', textTransform: 'capitalize' }}>{ct}</span>
+                  <input className="form-input" type="number" style={{ width: 95, padding: '8px 12px', textAlign: 'right' }}
+                    value={pricing.carTypePricing?.basic?.[ct] ?? ''} onChange={(e) => handleNestedPriceChange('carTypePricing', 'basic', ct, e.target.value)} />
                 </div>
+              ))}
 
-                {isLoadingBookings ? (
-                  <div className="py-12 text-center text-gray-400">Loading bookings...</div>
-                ) : bookings.length === 0 ? (
-                  <div className="py-12 text-center space-y-2">
-                    <div className="w-12 h-12 rounded-full bg-emerald-50 text-[#0F7A44] flex items-center justify-center mx-auto">
-                      <Check size={24} />
-                    </div>
-                    <div className="font-bold text-gray-800 text-sm">No Bookings Yet</div>
-                    <p className="text-gray-500 text-xs max-w-sm mx-auto">
-                      Whenever a customer submits a booking, their details (Name, Phone, Car Number, Date, Time, and Address) will immediately appear here.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3.5">
-                    {bookings.map((b, idx) => (
-                      <div key={b.id || idx} className="bg-gray-50 p-4 rounded-2xl border border-gray-200/80 space-y-2.5 hover:border-emerald-300 transition">
-                        
-                        {/* Top row: Customer Name & Amount */}
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <span className="font-black text-sm text-gray-900 block flex items-center gap-1.5">
-                              <User size={14} className="text-[#0F7A44]" />
-                              {b.customerName || 'Customer'}
-                            </span>
-                            <span className="text-[11px] text-gray-500 font-medium">
-                              ID: <strong className="text-gray-800">{b.id}</strong> • {new Date(b.createdAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                          </div>
+              {/* Premium Daily Rates */}
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 10, marginTop: 20 }}>Premium Daily Rates (₹/day)</p>
+              {carCategories.map(ct => (
+                <div key={ct} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                  <span style={{ flex: 1, fontSize: 13, color: '#475569', textTransform: 'capitalize' }}>{ct}</span>
+                  <input className="form-input" type="number" style={{ width: 95, padding: '8px 12px', textAlign: 'right' }}
+                    value={pricing.carTypePricing?.premium?.[ct] ?? ''} onChange={(e) => handleNestedPriceChange('carTypePricing', 'premium', ct, e.target.value)} />
+                </div>
+              ))}
 
-                          <div className="text-right">
-                            <span className="text-sm font-black text-[#0F7A44] block">
-                              ₹ {(b.amount || 0).toLocaleString('en-IN')}
-                            </span>
-                            {b.paymentStatus === 'Payment Verified' ? (
-                              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#0F7A44] inline-flex items-center gap-1">
-                                <Check size={11} strokeWidth={3} />
-                                <span>Payment Verified</span>
-                              </span>
-                            ) : (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">
-                                {b.paymentStatus || 'Verification Pending'}
-                              </span>
-                            )}
-                          </div>
-                        </div>
+              {/* Discounts */}
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 10, marginTop: 20 }}>Duration Discounts (%)</p>
+              {[{ key: '1m', label: '1 Month' }, { key: '3m', label: '3 Months' }, { key: '6m', label: '6 Months' }].map(d => (
+                <div key={d.key} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                  <span style={{ flex: 1, fontSize: 13, color: '#475569' }}>{d.label}</span>
+                  <input className="form-input" type="number" style={{ width: 95, padding: '8px 12px', textAlign: 'right' }}
+                    value={pricing.discounts?.[d.key] ?? ''} onChange={(e) => handleDiscountChange(d.key, e.target.value)} />
+                  <span style={{ fontSize: 12, color: '#94A3B8' }}>%</span>
+                </div>
+              ))}
 
-                        {/* Details Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-gray-600 pt-1 border-t border-gray-200/60">
-                          <div className="flex items-center space-x-1.5">
-                            <Car size={13} className="text-gray-400" />
-                            <span>Vehicle: <strong className="text-gray-900">{b.carModel || b.carNumber || 'N/A'}</strong></span>
-                          </div>
-                          <div className="flex items-center space-x-1.5">
-                            <Clock size={13} className="text-gray-400" />
-                            <span>Slot: <strong className="text-gray-900">{b.startDate} ({b.timeSlot})</strong></span>
-                          </div>
-                          <div className="flex items-center space-x-1.5 sm:col-span-2">
-                            <MapPin size={13} className="text-gray-400 flex-shrink-0" />
-                            <span className="truncate">Address: <strong className="text-gray-900">{b.address || 'Doorstep'}</strong></span>
-                          </div>
-                        </div>
-
-                        {/* Action buttons (Verify Payment, Call, WhatsApp) */}
-                        <div className="flex items-center justify-between pt-2 border-t border-gray-200/60">
-                          <div>
-                            <button
-                              onClick={() => handleToggleVerification(b.id, b.paymentStatus)}
-                              className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1 transition shadow-xs ${
-                                b.paymentStatus === 'Payment Verified'
-                                  ? 'bg-emerald-50 text-[#0F7A44] border border-emerald-300 hover:bg-emerald-100'
-                                  : 'bg-[#0F7A44] hover:bg-[#0c6237] text-white active:scale-95'
-                              }`}
-                              title={b.paymentStatus === 'Payment Verified' ? 'Click to revert to pending' : 'Click to mark verified once payment screenshot is checked'}
-                            >
-                              <Check size={13} strokeWidth={2.5} />
-                              <span>{b.paymentStatus === 'Payment Verified' ? 'Payment Verified' : 'Verify Payment'}</span>
-                            </button>
-                          </div>
-
-                          <div className="flex items-center space-x-2">
-                            {b.customerPhone && (
-                              <>
-                                <a
-                                  href={`tel:${b.customerPhone}`}
-                                  className="px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-100 rounded-xl font-bold text-gray-700 flex items-center space-x-1"
-                                >
-                                  <Phone size={12} />
-                                  <span>Call</span>
-                                </a>
-                                <a
-                                  href={`https://wa.me/${b.customerPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${b.customerName || 'Customer'}, this is Tisna Car Care regarding your booking (${b.id}).`)}`}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="px-3 py-1.5 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 rounded-xl font-bold text-[#0F7A44] flex items-center space-x-1"
-                                >
-                                  <MessageCircle size={12} />
-                                  <span>WhatsApp</span>
-                                </a>
-                              </>
-                            )}
-                          </div>
-                        </div>
-
-                      </div>
-                    ))}
-                  </div>
-                )}
+              <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
+                <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={handleReset}>Reset Defaults</button>
+                <button type="submit" className="btn btn-primary" style={{ flex: 2 }}>
+                  {saveSuccess ? 'Saved to Cloud ✓' : 'Save Changes'}
+                </button>
               </div>
-            )}
-
-            {/* TAB 2: PRICING EDITOR FORM */}
-            {activeTab === 'pricing' && (
-              <form onSubmit={handleSave} className="overflow-y-auto p-6 space-y-5 flex-1 text-xs">
-                
-                {/* Live Indicator */}
-                <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 flex items-center justify-between text-[#0F7A44] font-bold">
-                  <span>Owner Mode Active — You can update any price live</span>
-                  <span className="text-[10px] bg-[#0F7A44] text-white px-2 py-0.5 rounded-full">Unlocked</span>
-                </div>
-
-                {/* Section 1: Basic Service Daily Rates */}
-                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200/80 space-y-3">
-                  <h4 className="font-bold text-gray-900 text-xs">Basic Service (Daily Rates by Car Segment)</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-[11px] text-gray-600 block mb-1">Small Car / Hatchback (₹)</label>
-                      <input
-                        type="number"
-                        value={pricing.carTypePricing?.basic?.hatchback ?? 500}
-                        onChange={(e) => handleNestedPriceChange('carTypePricing', 'basic', 'hatchback', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0F7A44]"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] text-gray-600 block mb-1">Sedan (₹)</label>
-                      <input
-                        type="number"
-                        value={pricing.carTypePricing?.basic?.sedan ?? 600}
-                        onChange={(e) => handleNestedPriceChange('carTypePricing', 'basic', 'sedan', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0F7A44]"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] text-gray-600 block mb-1">SUV (₹)</label>
-                      <input
-                        type="number"
-                        value={pricing.carTypePricing?.basic?.suv ?? 700}
-                        onChange={(e) => handleNestedPriceChange('carTypePricing', 'basic', 'suv', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0F7A44]"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] text-gray-600 block mb-1">Luxury (₹)</label>
-                      <input
-                        type="number"
-                        value={pricing.carTypePricing?.basic?.luxury ?? 850}
-                        onChange={(e) => handleNestedPriceChange('carTypePricing', 'basic', 'luxury', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0F7A44]"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 2: Premium Service Daily Rates */}
-                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200/80 space-y-3">
-                  <h4 className="font-bold text-gray-900 text-xs">Premium Service (Daily Rates by Car Segment)</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-[11px] text-gray-600 block mb-1">Small Car / Hatchback (₹)</label>
-                      <input
-                        type="number"
-                        value={pricing.carTypePricing?.premium?.hatchback ?? 800}
-                        onChange={(e) => handleNestedPriceChange('carTypePricing', 'premium', 'hatchback', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0F7A44]"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] text-gray-600 block mb-1">Sedan (₹)</label>
-                      <input
-                        type="number"
-                        value={pricing.carTypePricing?.premium?.sedan ?? 1100}
-                        onChange={(e) => handleNestedPriceChange('carTypePricing', 'premium', 'sedan', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0F7A44]"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] text-gray-600 block mb-1">SUV (₹)</label>
-                      <input
-                        type="number"
-                        value={pricing.carTypePricing?.premium?.suv ?? 1300}
-                        onChange={(e) => handleNestedPriceChange('carTypePricing', 'premium', 'suv', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0F7A44]"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] text-gray-600 block mb-1">Luxury (₹)</label>
-                      <input
-                        type="number"
-                        value={pricing.carTypePricing?.premium?.luxury ?? 1600}
-                        onChange={(e) => handleNestedPriceChange('carTypePricing', 'premium', 'luxury', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0F7A44]"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 3: One-Time Add-on Services */}
-                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200/80 space-y-3">
-                  <h4 className="font-bold text-gray-900 text-xs">One-Time Add-On Services (₹)</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-[11px] text-gray-600 block mb-1">Jet Spray Wash (₹)</label>
-                      <input
-                        type="number"
-                        value={pricing.otherServices?.['jet-spray'] ?? 500}
-                        onChange={(e) => handlePriceChange('otherServices', 'jet-spray', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] text-gray-600 block mb-1">Interior Dry Clean (₹)</label>
-                      <input
-                        type="number"
-                        value={pricing.otherServices?.['dry-clean'] ?? 1200}
-                        onChange={(e) => handlePriceChange('otherServices', 'dry-clean', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] text-gray-600 block mb-1">Car Polishing (₹)</label>
-                      <input
-                        type="number"
-                        value={pricing.otherServices?.['polishing'] ?? 400}
-                        onChange={(e) => handlePriceChange('otherServices', 'polishing', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] text-gray-600 block mb-1">Glass Cleaning (₹)</label>
-                      <input
-                        type="number"
-                        value={pricing.otherServices?.['glass-cleaning'] ?? 300}
-                        onChange={(e) => handlePriceChange('otherServices', 'glass-cleaning', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="text-[11px] text-gray-600 block mb-1">Engine Bay Clean (₹)</label>
-                      <input
-                        type="number"
-                        value={pricing.otherServices?.['engine-bay-clean'] ?? 500}
-                        onChange={(e) => handlePriceChange('otherServices', 'engine-bay-clean', e.target.value)}
-                        className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 4: Duration Discounts & Live Calculated Rates */}
-                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200/80 space-y-3.5">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-bold text-gray-900 text-xs">Duration Discounts (% छूट) & Dynamic Prices</h4>
-                    <span className="text-[10px] text-[#0F7A44] font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                      100% Calculated From Daily Price
-                    </span>
-                  </div>
-
-                  {/* Discount Percentage Setters */}
-                  <div className="bg-emerald-50/70 p-3.5 rounded-xl border border-emerald-200/80 space-y-2">
-                    <span className="text-[11px] font-bold text-emerald-950 block">Set Duration Discount Percentages (% छूट):</span>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div>
-                        <label className="text-[10px] text-gray-600 block mb-1">1 Month Discount (% off)</label>
-                        <div className="relative">
-                          <input
-                            type="number"
-                            min="0"
-                            max="50"
-                            value={pricing.discounts?.['1m'] ?? 0}
-                            onChange={(e) => handleDiscountChange('1m', e.target.value)}
-                            className="w-full px-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl font-bold text-emerald-900 focus:outline-none focus:ring-2 focus:ring-[#0F7A44]"
-                          />
-                          <span className="absolute right-2.5 top-1.5 text-xs font-bold text-emerald-700">%</span>
-                        </div>
-                        <span className="text-[9px] text-gray-400">30 days wash</span>
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-gray-600 block mb-1">3 Months Discount (% off)</label>
-                        <div className="relative">
-                          <input
-                            type="number"
-                            min="0"
-                            max="50"
-                            value={pricing.discounts?.['3m'] ?? 7}
-                            onChange={(e) => handleDiscountChange('3m', e.target.value)}
-                            className="w-full px-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl font-bold text-emerald-900 focus:outline-none focus:ring-2 focus:ring-[#0F7A44]"
-                          />
-                          <span className="absolute right-2.5 top-1.5 text-xs font-bold text-emerald-700">%</span>
-                        </div>
-                        <span className="text-[9px] text-gray-400">90 days wash</span>
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-gray-600 block mb-1">6 Months Discount (% off)</label>
-                        <div className="relative">
-                          <input
-                            type="number"
-                            min="0"
-                            max="50"
-                            value={pricing.discounts?.['6m'] ?? 11}
-                            onChange={(e) => handleDiscountChange('6m', e.target.value)}
-                            className="w-full px-2.5 py-1.5 bg-white border border-emerald-300 rounded-xl font-bold text-emerald-900 focus:outline-none focus:ring-2 focus:ring-[#0F7A44]"
-                          />
-                          <span className="absolute right-2.5 top-1.5 text-xs font-bold text-emerald-700">%</span>
-                        </div>
-                        <span className="text-[9px] text-gray-400">180 days wash</span>
-                      </div>
-                    </div>
-                    <p className="text-[9px] text-emerald-800">
-                      Formula: <strong>Daily Rate × Days × (1 - Discount%)</strong>. Monthly, 3-Month, and 6-Month prices are calculated live from the daily rates above!
-                    </p>
-                  </div>
-
-                  {/* Live Calculated Price Breakdown Table */}
-                  <div className="space-y-2">
-                    <span className="text-[11px] font-bold text-gray-800 block">Live Price Calculations by Car Segment:</span>
-                    <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-                      <table className="w-full text-[11px] text-left">
-                        <thead className="bg-gray-50 border-b border-gray-200 text-gray-600 text-[10px] uppercase font-bold">
-                          <tr>
-                            <th className="px-3 py-2">Car Segment</th>
-                            <th className="px-3 py-2">Plan</th>
-                            <th className="px-3 py-2">Daily (1d)</th>
-                            <th className="px-3 py-2">1 Month (30d)</th>
-                            <th className="px-3 py-2">3 Months (90d)</th>
-                            <th className="px-3 py-2">6 Months (180d)</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                          {[
-                            { id: 'hatchback', label: 'Hatchback / Small' },
-                            { id: 'sedan', label: 'Sedan' },
-                            { id: 'suv', label: 'SUV' },
-                            { id: 'luxury', label: 'Luxury' }
-                          ].map(car => {
-                            const bDaily = Number(pricing.carTypePricing?.basic?.[car.id] ?? 600);
-                            const b1m = storage.calculatePlanPrice('basic', '1m', car.id, pricing);
-                            const b3m = storage.calculatePlanPrice('basic', '3m', car.id, pricing);
-                            const b6m = storage.calculatePlanPrice('basic', '6m', car.id, pricing);
-
-                            const pDaily = Number(pricing.carTypePricing?.premium?.[car.id] ?? 1100);
-                            const p1m = storage.calculatePlanPrice('premium', '1m', car.id, pricing);
-                            const p3m = storage.calculatePlanPrice('premium', '3m', car.id, pricing);
-                            const p6m = storage.calculatePlanPrice('premium', '6m', car.id, pricing);
-
-                            return (
-                              <React.Fragment key={car.id}>
-                                <tr className="hover:bg-emerald-50/40">
-                                  <td className="px-3 py-1.5 font-bold text-gray-900 border-r border-gray-100" rowSpan={2}>{car.label}</td>
-                                  <td className="px-3 py-1.5 font-semibold text-[#0F7A44]">Basic</td>
-                                  <td className="px-3 py-1.5 font-bold">₹{bDaily}</td>
-                                  <td className="px-3 py-1.5 font-bold text-gray-900">₹{b1m.toLocaleString('en-IN')}</td>
-                                  <td className="px-3 py-1.5 font-bold text-emerald-700">₹{b3m.toLocaleString('en-IN')}</td>
-                                  <td className="px-3 py-1.5 font-bold text-emerald-800">₹{b6m.toLocaleString('en-IN')}</td>
-                                </tr>
-                                <tr className="hover:bg-amber-50/40 bg-gray-50/30">
-                                  <td className="px-3 py-1.5 font-semibold text-amber-700">Premium</td>
-                                  <td className="px-3 py-1.5 font-bold">₹{pDaily}</td>
-                                  <td className="px-3 py-1.5 font-bold text-gray-900">₹{p1m.toLocaleString('en-IN')}</td>
-                                  <td className="px-3 py-1.5 font-bold text-amber-700">₹{p3m.toLocaleString('en-IN')}</td>
-                                  <td className="px-3 py-1.5 font-bold text-amber-800">₹{p6m.toLocaleString('en-IN')}</td>
-                                </tr>
-                              </React.Fragment>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Section 5: Client WhatsApp & UPI */}
-                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200/80 space-y-3">
-                  <h4 className="font-bold text-gray-900 text-xs">Contact, Header Phone & WhatsApp Details</h4>
-                  
-                  <div>
-                    <label className="text-[11px] text-gray-600 block mb-1">
-                      Header / Support Phone Number (e.g. +91 70420 62926)
-                    </label>
-                    <input
-                      type="text"
-                      value={pricing.payment?.paymentPhone || ''}
-                      onChange={(e) => handlePhoneChange(e.target.value)}
-                      placeholder="+91 70420 62926"
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900"
-                    />
-                    <span className="text-[10px] text-gray-400 block mt-0.5">
-                      This number is displayed at the top header for calls.
-                    </span>
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] text-gray-600 block mb-1">
-                      WhatsApp Number (for wa.me links, e.g. 917042062926)
-                    </label>
-                    <input
-                      type="text"
-                      value={pricing.payment?.whatsappNumber || ''}
-                      onChange={(e) => handlePaymentChange('whatsappNumber', e.target.value)}
-                      placeholder="917042062926"
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900"
-                    />
-                    <span className="text-[10px] text-gray-400 block mt-0.5">
-                      Customer booking notifications and screenshots will be sent here.
-                    </span>
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] text-gray-600 block mb-1">UPI ID (e.g. tisnacarcare@upi)</label>
-                    <input
-                      type="text"
-                      value={pricing.payment?.upiId || 'tisnacarcare@upi'}
-                      onChange={(e) => handlePaymentChange('upiId', e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-bold text-gray-900"
-                    />
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="pt-2 space-y-2.5">
-                  <button
-                    type="submit"
-                    className="w-full py-3.5 bg-[#0F7A44] hover:bg-[#0c6237] active:scale-[0.99] text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-md transition flex items-center justify-center space-x-2"
-                  >
-                    {saveSuccess ? (
-                      <>
-                        <Check size={18} />
-                        <span>Prices Saved & Live on Website!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Save size={18} />
-                        <span>Save & Update All Prices Live</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleReset}
-                    className="w-full py-2 bg-white hover:bg-gray-100 text-gray-600 font-semibold rounded-xl text-xs border border-gray-200 transition flex items-center justify-center space-x-1.5"
-                  >
-                    <RotateCcw size={14} />
-                    <span>Reset to Default Prices</span>
-                  </button>
-                </div>
-              </form>
-            )}
-
-          </div>
-        )}
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

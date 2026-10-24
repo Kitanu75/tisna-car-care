@@ -1,68 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { Phone, MessageCircle } from 'lucide-react';
-import appConfig from '../data/appConfig';
+import React from 'react';
+import { storage } from '../utils/storage';
 
-export default function Footer({ onNavigate, onOpenAdminPricing }) {
-  const [payment, setPayment] = useState(() => appConfig.getPaymentDetails());
-
-  useEffect(() => {
-    const handleUpdate = () => {
-      setPayment(appConfig.getPaymentDetails());
-    };
-    window.addEventListener('tisna_pricing_updated', handleUpdate);
-    return () => window.removeEventListener('tisna_pricing_updated', handleUpdate);
-  }, []);
+export default function Footer() {
+  const pricing = storage.getPricing();
+  const phone = pricing?.payment?.paymentPhone || '+91 70420 62926';
+  const wa = pricing?.payment?.whatsappNumber || '917042062926';
 
   return (
-    <footer className="bg-gray-900 text-gray-300 border-t border-gray-800 py-6 mt-10">
-      <div className="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-        
-        {/* Brand & Phone */}
-        <div className="flex items-center space-x-3">
-          <div className="bg-white p-1.5 rounded-xl inline-block">
-            <img 
-              src={appConfig.brand.logoImage} 
-              alt={appConfig.brand.name} 
-              className="h-7 w-auto object-contain"
-            />
-          </div>
-          <div>
-            <span className="font-extrabold text-white text-sm block">Tisna Car Care</span>
-            <span className="text-[11px] text-gray-400">Delhi NCR • Doorstep Service</span>
-          </div>
-        </div>
-
-        {/* WhatsApp & Call Action */}
-        <div className="flex items-center space-x-3">
-          <a
-            href={`tel:${payment.paymentPhone}`}
-            className="flex items-center space-x-1.5 text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-xl font-bold transition"
-          >
-            <Phone size={13} className="text-[#25D366]" />
-            <span>{payment.paymentPhone}</span>
-          </a>
-
-          <a
-            href={`https://wa.me/${payment.whatsappNumber}`}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center space-x-1.5 bg-[#0F7A44] hover:bg-[#0c6237] text-white px-3.5 py-1.5 rounded-xl font-bold transition shadow-xs"
-          >
-            <MessageCircle size={13} />
-            <span>WhatsApp</span>
-          </a>
-        </div>
-
-        {/* Secret PIN-protected Admin click link */}
-        <div className="text-[11px] text-gray-500 select-none text-center sm:text-right">
-          <span 
-            onClick={onOpenAdminPricing}
-            className="cursor-default hover:text-gray-400 transition"
-          >
-            © {new Date().getFullYear()} Tisna Car Care
-          </span>
-        </div>
-
+    <footer className="footer">
+      <div className="footer-links">
+        <a href={`tel:${phone.replace(/\s/g, '')}`} className="footer-link">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+          </svg>
+          <span>Call Us</span>
+        </a>
+        <a
+          href={`https://wa.me/${wa}?text=Hi%20Tisna%20Car%20Care`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="footer-link"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z" />
+          </svg>
+          <span>WhatsApp</span>
+        </a>
+      </div>
+      <div className="footer-copyright">
+        © {new Date().getFullYear()} Tisna Car Care. All rights reserved.
       </div>
     </footer>
   );

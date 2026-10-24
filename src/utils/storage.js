@@ -66,15 +66,15 @@ const DEFAULT_CARS = [
 export const DEFAULT_PRICING = {
   carTypePricing: {
     basic: {
-      hatchback: 500, // Small car
-      sedan: 600,     // Sedan
-      suv: 700,       // SUV
+      hatchback: 500, // Small car: 500
+      sedan: 600,     // Sedan: 600
+      suv: 700,       // SUV: 700
       luxury: 850
     },
     premium: {
-      hatchback: 800, // Small car
-      sedan: 1100,    // Sedan
-      suv: 1300,      // SUV
+      hatchback: 800, // Small car: 800
+      sedan: 1100,    // Sedan: 1100
+      suv: 1300,      // SUV: 1300
       luxury: 1600
     }
   },
