@@ -1400,4 +1400,27 @@ body {
   user-select: none;
 }
 
+/* Payment Screenshot Notice */
+.payment-ss-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  color: #1E40AF;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 12px 0 16px;
+  text-align: left;
+}
+
+.payment-ss-notice svg {
+  flex-shrink: 0;
+  color: #2563EB;
+}
+
+
 
