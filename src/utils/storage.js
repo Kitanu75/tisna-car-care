@@ -64,42 +64,25 @@ const DEFAULT_CARS = [
 
 // Initial default pricing matching user specifications
 export const DEFAULT_PRICING = {
+  plans: {
+    basic: { hatchback: 400, sedan: 500, suv: 600, luxury: 800 },
+    standard: { hatchback: 550, sedan: 650, suv: 700, luxury: 1000 },
+    premium: { hatchback: 750, sedan: 850, suv: 900, luxury: 1200 },
+    luxury: { hatchback: 950, sedan: 1050, suv: 1200, luxury: 1500 }
+  },
   carTypePricing: {
-    basic: {
-      hatchback: 500, // Small car: 500
-      sedan: 600,     // Sedan: 600
-      suv: 700,       // SUV: 700
-      luxury: 850
-    },
-    premium: {
-      hatchback: 800, // Small car: 800
-      sedan: 1100,    // Sedan: 1100
-      suv: 1300,      // SUV: 1300
-      luxury: 1600
-    }
-  },
-  discounts: {
-    '3m': 7,  // 7% discount for 3 months
-    '6m': 11  // 11% discount for 6 months
-  },
-  subscriptionPlans: {
-    basic: {
-      '1m': 0,
-      '3m': 0,
-      '6m': 0
-    },
-    premium: {
-      '1m': 0,
-      '3m': 0,
-      '6m': 0
-    }
+    basic: { hatchback: 400, sedan: 500, suv: 600, luxury: 800 },
+    standard: { hatchback: 550, sedan: 650, suv: 700, luxury: 1000 },
+    premium: { hatchback: 750, sedan: 850, suv: 900, luxury: 1200 },
+    luxury: { hatchback: 950, sedan: 1050, suv: 1200, luxury: 1500 }
   },
   otherServices: {
-    'jet-spray': 500,
-    'dry-clean': 1200,
-    'polishing': 400,
-    'glass-cleaning': 300,
-    'engine-bay-clean': 500
+    'foam-wash': 'Price on Call',
+    'dry-cleaning': 'Price on Call',
+    'polishing': 'Price on Call',
+    'ceramic-coating': 'Price on Call',
+    'mechanical-work': 'Price on Call',
+    'denting-painting': 'Price on Call'
   },
   payment: {
     paymentPhone: "+91 70420 62926",
@@ -124,14 +107,17 @@ export const storage = {
         return {
           ...fallback,
           ...parsed,
+          plans: {
+            basic: { ...fallback.plans?.basic, ...(parsed.plans?.basic || {}) },
+            standard: { ...fallback.plans?.standard, ...(parsed.plans?.standard || {}) },
+            premium: { ...fallback.plans?.premium, ...(parsed.plans?.premium || {}) },
+            luxury: { ...fallback.plans?.luxury, ...(parsed.plans?.luxury || {}) }
+          },
           carTypePricing: {
             basic: { ...fallback.carTypePricing?.basic, ...(parsed.carTypePricing?.basic || {}) },
-            premium: { ...fallback.carTypePricing?.premium, ...(parsed.carTypePricing?.premium || {}) }
-          },
-          discounts: {
-            '1m': Number(parsed.discounts?.['1m'] ?? fallback.discounts?.['1m'] ?? 0),
-            '3m': Number(parsed.discounts?.['3m'] ?? fallback.discounts?.['3m'] ?? 7),
-            '6m': Number(parsed.discounts?.['6m'] ?? fallback.discounts?.['6m'] ?? 11)
+            standard: { ...fallback.carTypePricing?.standard, ...(parsed.carTypePricing?.standard || {}) },
+            premium: { ...fallback.carTypePricing?.premium, ...(parsed.carTypePricing?.premium || {}) },
+            luxury: { ...fallback.carTypePricing?.luxury, ...(parsed.carTypePricing?.luxury || {}) }
           },
           otherServices: { ...fallback.otherServices, ...(parsed.otherServices || {}) },
           payment: { ...fallback.payment, ...(parsed.payment || {}) }

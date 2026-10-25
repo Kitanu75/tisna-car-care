@@ -77,6 +77,31 @@ export default function AdminPriceModal({ isOpen, onClose }) {
     setBookings(updated);
   };
 
+  const handlePlanPriceChange = (planKey, carSegment, value) => {
+    const num = value === '' ? '' : Number(value);
+    setPricing(prev => {
+      const nextPlans = {
+        ...(prev.plans || {}),
+        [planKey]: {
+          ...(prev.plans?.[planKey] || {}),
+          [carSegment]: num
+        }
+      };
+      const nextCarTypePricing = {
+        ...(prev.carTypePricing || {}),
+        [planKey]: {
+          ...(prev.carTypePricing?.[planKey] || {}),
+          [carSegment]: num
+        }
+      };
+      return {
+        ...prev,
+        plans: nextPlans,
+        carTypePricing: nextCarTypePricing
+      };
+    });
+  };
+
   const handleNestedPriceChange = (section, category, subkey, value) => {
     const num = value === '' ? '' : Number(value);
     setPricing(prev => ({
@@ -222,34 +247,35 @@ export default function AdminPriceModal({ isOpen, onClose }) {
 
           {activeTab === 'pricing' && (
             <form onSubmit={handleSave}>
-              {/* Basic Daily Rates */}
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 10 }}>Basic Daily Rates (₹/day)</p>
-              {carCategories.map(ct => (
-                <div key={ct} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ flex: 1, fontSize: 13, color: '#475569', textTransform: 'capitalize' }}>{ct}</span>
-                  <input className="form-input" type="number" style={{ width: 95, padding: '8px 12px', textAlign: 'right' }}
-                    value={pricing.carTypePricing?.basic?.[ct] ?? ''} onChange={(e) => handleNestedPriceChange('carTypePricing', 'basic', ct, e.target.value)} />
-                </div>
-              ))}
+              <div style={{ marginBottom: 16, padding: '10px 14px', borderRadius: 8, background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+                <span style={{ fontSize: 12, color: '#1E40AF', fontWeight: 600 }}>
+                  ☁ Live Firebase Realtime Database Sync Active: Saving updates live across all devices instantly.
+                </span>
+              </div>
 
-              {/* Premium Daily Rates */}
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 10, marginTop: 20 }}>Premium Daily Rates (₹/day)</p>
-              {carCategories.map(ct => (
-                <div key={ct} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ flex: 1, fontSize: 13, color: '#475569', textTransform: 'capitalize' }}>{ct}</span>
-                  <input className="form-input" type="number" style={{ width: 95, padding: '8px 12px', textAlign: 'right' }}
-                    value={pricing.carTypePricing?.premium?.[ct] ?? ''} onChange={(e) => handleNestedPriceChange('carTypePricing', 'premium', ct, e.target.value)} />
-                </div>
-              ))}
-
-              {/* Discounts */}
-              <p style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 10, marginTop: 20 }}>Duration Discounts (%)</p>
-              {[{ key: '1m', label: '1 Month' }, { key: '3m', label: '3 Months' }, { key: '6m', label: '6 Months' }].map(d => (
-                <div key={d.key} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ flex: 1, fontSize: 13, color: '#475569' }}>{d.label}</span>
-                  <input className="form-input" type="number" style={{ width: 95, padding: '8px 12px', textAlign: 'right' }}
-                    value={pricing.discounts?.[d.key] ?? ''} onChange={(e) => handleDiscountChange(d.key, e.target.value)} />
-                  <span style={{ fontSize: 12, color: '#94A3B8' }}>%</span>
+              {[
+                { key: 'basic', label: 'Basic Care Plan (₹/month)' },
+                { key: 'standard', label: 'Standard Care Plan (₹/month)' },
+                { key: 'premium', label: 'Premium Care Plan (₹/month)' },
+                { key: 'luxury', label: 'Luxury Care Plan (₹/month)' }
+              ].map((p, idx) => (
+                <div key={p.key} style={{ marginTop: idx > 0 ? 16 : 0, borderBottom: '1px solid #E2E8F0', paddingBottom: 12 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: '#1E293B', marginBottom: 8 }}>{p.label}</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                    {carCategories.map(ct => (
+                      <div key={ct} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#F8FAFC', padding: '6px 10px', borderRadius: 8, border: '1px solid #E2E8F0' }}>
+                        <span style={{ flex: 1, fontSize: 12, color: '#475569', textTransform: 'capitalize', fontWeight: 600 }}>{ct}</span>
+                        <span style={{ fontSize: 12, color: '#94A3B8' }}>₹</span>
+                        <input
+                          className="form-input"
+                          type="number"
+                          style={{ width: 75, padding: '6px 8px', textAlign: 'right', fontSize: 13 }}
+                          value={pricing.plans?.[p.key]?.[ct] ?? pricing.carTypePricing?.[p.key]?.[ct] ?? ''}
+                          onChange={(e) => handlePlanPriceChange(p.key, ct, e.target.value)}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
 

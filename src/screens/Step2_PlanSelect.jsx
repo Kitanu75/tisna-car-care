@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import StepIndicator from '../components/StepIndicator';
 import { CAR_TYPE_INFO } from '../data/carModels';
+import { storage } from '../utils/storage';
 
 const PLANS_DATA = {
   basic: {
@@ -148,6 +149,17 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
   const [selectedAddonIds, setSelectedAddonIds] = useState([]);
   const [expandedPlans, setExpandedPlans] = useState({});
 
+  // 100% Dynamic Live Pricing synced in realtime from Firebase Cloud
+  const [livePricing, setLivePricing] = useState(() => storage.getPricing());
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setLivePricing(storage.getPricing());
+    };
+    window.addEventListener('tisna_pricing_updated', handleUpdate);
+    return () => window.removeEventListener('tisna_pricing_updated', handleUpdate);
+  }, []);
+
   const toggleExpand = (planKey, e) => {
     e.stopPropagation();
     setExpandedPlans(prev => ({
@@ -162,9 +174,29 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
     subtitle: carData?.carSubtitle || 'Selected Segment',
     image: carData?.carImage || '/assets/car-city.jpg'
   };
+
+  // Helper resolving plan price dynamically from Firebase Realtime Database
+  const getPlanPrice = (planKey, segment) => {
+    const liveVal = livePricing?.plans?.[planKey]?.[segment]
+      ?? livePricing?.carTypePricing?.[planKey]?.[segment];
+    if (liveVal !== undefined && liveVal !== null && !isNaN(Number(liveVal))) {
+      return Number(liveVal);
+    }
+    return PLANS_DATA[planKey]?.pricing?.[segment] || 0;
+  };
+
+  // Helper resolving additional services dynamically from Firebase Realtime Database
+  const getAddonInfo = (addon, segment) => {
+    const liveCustom = livePricing?.otherServices?.[addon.id];
+    const isPriceOnCall = liveCustom ? liveCustom === 'Price on Call' : !!addon.priceOnCall;
+    const customNum = Number(liveCustom);
+    const price = isPriceOnCall ? 0 : (!isNaN(customNum) && customNum > 0 ? customNum : (addon.pricing?.[segment] || 0));
+    return { isPriceOnCall, price };
+  };
+
   const plansList = Object.values(PLANS_DATA);
   const selectedPlan = PLANS_DATA[selectedPlanKey] || PLANS_DATA.standard;
-  const basePrice = selectedPlan.pricing[carType] || selectedPlan.pricing.hatchback;
+  const basePrice = getPlanPrice(selectedPlan.key, carType);
 
   const toggleAddon = (id) => {
     setSelectedAddonIds((prev) =>
@@ -174,12 +206,15 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
 
   const selectedAddonsList = ADDITIONAL_SERVICES
     .filter(s => selectedAddonIds.includes(s.id))
-    .map(s => ({
-      ...s,
-      isPriceOnCall: !!s.priceOnCall,
-      hasPickupDrop: !!s.hasPickupDrop,
-      price: s.priceOnCall ? 0 : (s.pricing?.[carType] || s.pricing?.hatchback || 0)
-    }));
+    .map(s => {
+      const { isPriceOnCall, price } = getAddonInfo(s, carType);
+      return {
+        ...s,
+        isPriceOnCall,
+        hasPickupDrop: !!s.hasPickupDrop,
+        price
+      };
+    });
 
   const addonsTotal = selectedAddonsList.reduce((sum, s) => sum + s.price, 0);
   const totalAmount = basePrice + addonsTotal;
@@ -240,7 +275,7 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
           {plansList.map((plan) => {
             const isSelected = selectedPlanKey === plan.key;
             const isExpanded = !!expandedPlans[plan.key];
-            const price = plan.pricing[carType] || plan.pricing.hatchback;
+            const price = getPlanPrice(plan.key, carType);
 
             return (
               <div
@@ -368,7 +403,7 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
           <div className="addon-banner-list">
             {ADDITIONAL_SERVICES.map((addon) => {
               const isChecked = selectedAddonIds.includes(addon.id);
-              const addonPrice = addon.pricing?.[carType] || addon.pricing?.hatchback || 0;
+              const { isPriceOnCall, price: addonPrice } = getAddonInfo(addon, carType);
 
               return (
                 <div
@@ -398,8 +433,8 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
                       </div>
                       <div className="addon-banner-desc">{addon.desc}</div>
                     </div>
-                    <div className={`addon-banner-price ${addon.priceOnCall ? 'on-call' : ''}`}>
-                      {addon.priceOnCall ? 'Price on Call' : `+₹${addonPrice.toLocaleString('en-IN')}`}
+                    <div className={`addon-banner-price ${isPriceOnCall ? 'on-call' : ''}`}>
+                      {isPriceOnCall ? 'Price on Call' : `+₹${addonPrice.toLocaleString('en-IN')}`}
                     </div>
                   </div>
                 </div>
