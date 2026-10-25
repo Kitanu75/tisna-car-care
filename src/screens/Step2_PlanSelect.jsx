@@ -8,10 +8,10 @@ const PLANS_DATA = {
     name: 'Basic Care',
     subtitle: 'Everyday exterior cleanliness',
     pricing: {
-      hatchback: 450,
-      sedan: 600,
-      suv: 700,
-      luxury: 900
+      hatchback: 400,
+      sedan: 500,
+      suv: 600,
+      luxury: 800
     },
     baseFeatures: [
       'Daily exterior dust cleaning',
@@ -26,10 +26,10 @@ const PLANS_DATA = {
     badge: 'Most Popular',
     subtitle: 'Complete care inside & out',
     pricing: {
-      hatchback: 650,
-      sedan: 800,
-      suv: 900,
-      luxury: 1300
+      hatchback: 550,
+      sedan: 650,
+      suv: 700,
+      luxury: 1000
     },
     isPopular: true,
     baseFeatures: [
@@ -48,10 +48,10 @@ const PLANS_DATA = {
     name: 'Premium Care',
     subtitle: 'Deep cleaning & extra shine',
     pricing: {
-      hatchback: 850,
-      sedan: 1200,
-      suv: 1400,
-      luxury: 1800
+      hatchback: 750,
+      sedan: 850,
+      suv: 900,
+      luxury: 1200
     },
     baseFeatures: [
       'Daily exterior dust cleaning',
@@ -71,10 +71,10 @@ const PLANS_DATA = {
     name: 'Luxury Care',
     subtitle: 'Ultimate cleaning & premium shine',
     pricing: {
-      hatchback: 1300,
-      sedan: 1600,
-      suv: 1900,
-      luxury: 2200
+      hatchback: 950,
+      sedan: 1050,
+      suv: 1200,
+      luxury: 1500
     },
     baseFeatures: [
       'Daily exterior dust cleaning',
