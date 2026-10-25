@@ -10,7 +10,6 @@ const PLANS_DATA = {
       hatchback: 450,
       sedan: 600,
       suv: 700,
-      sevenSeater: 750,
       luxury: 900
     },
     baseFeatures: [
@@ -29,7 +28,6 @@ const PLANS_DATA = {
       hatchback: 650,
       sedan: 800,
       suv: 900,
-      sevenSeater: 1000,
       luxury: 1300
     },
     isPopular: true,
@@ -50,7 +48,6 @@ const PLANS_DATA = {
       hatchback: 850,
       sedan: 1200,
       suv: 1400,
-      sevenSeater: 1550,
       luxury: 1800
     },
     baseFeatures: [
@@ -70,7 +67,6 @@ const PLANS_DATA = {
       hatchback: 1300,
       sedan: 1600,
       suv: 1900,
-      sevenSeater: 2050,
       luxury: 2200
     },
     baseFeatures: [
@@ -91,8 +87,8 @@ const ADDITIONAL_SERVICES = [
   {
     id: 'foam-wash',
     name: 'Exterior Foam Wash',
-    desc: 'Snow foam wash & tyre pressure clean',
-    pricing: { hatchback: 300, sedan: 350, suv: 400, sevenSeater: 500, luxury: 500 },
+    desc: 'Snow foam wash & tyre pressure clean • Doorstep',
+    pricing: { hatchback: 300, sedan: 350, suv: 400, luxury: 500 },
     image: '/assets/service-foam-wash.jpg'
   },
   {
@@ -100,6 +96,7 @@ const ADDITIONAL_SERVICES = [
     name: 'Interior Dry Cleaning',
     desc: 'Deep seat, carpet & roof vacuuming with high-power machine',
     priceOnCall: true,
+    hasPickupDrop: true,
     image: '/assets/service-vacuum-clean.jpg'
   },
   {
@@ -107,6 +104,7 @@ const ADDITIONAL_SERVICES = [
     name: 'Car Polishing',
     desc: 'Swirl removal & paint gloss shine',
     priceOnCall: true,
+    hasPickupDrop: true,
     image: '/assets/service-polishing.jpg'
   },
   {
@@ -114,13 +112,15 @@ const ADDITIONAL_SERVICES = [
     name: 'Ceramic Coating',
     desc: '9H hydrophobic long-lasting protection',
     priceOnCall: true,
+    hasPickupDrop: true,
     image: '/assets/service-ceramic-coating.jpg'
   },
   {
     id: 'mechanical-work',
     name: 'Mechanical Works',
-    desc: 'Doorstep engine, brakes, AC & battery inspection',
+    desc: 'Engine, brakes, AC & battery inspection and repair',
     priceOnCall: true,
+    hasPickupDrop: true,
     image: '/assets/service-mechanical.jpg'
   },
   {
@@ -128,6 +128,7 @@ const ADDITIONAL_SERVICES = [
     name: 'Denting & Painting',
     desc: 'Panel dent repair & flawless paint finish',
     priceOnCall: true,
+    hasPickupDrop: true,
     image: '/assets/service-denting-painting.jpg'
   }
 ];
@@ -161,6 +162,7 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
     .map(s => ({
       ...s,
       isPriceOnCall: !!s.priceOnCall,
+      hasPickupDrop: !!s.hasPickupDrop,
       price: s.priceOnCall ? 0 : (s.pricing?.[carType] || s.pricing?.hatchback || 0)
     }));
 
@@ -307,17 +309,27 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
 
         {/* Additional Services */}
         <div style={{ marginTop: 24, marginBottom: 8 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12, gap: 10 }}>
             <div>
-              <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--gray-900)' }}>
-                Additional Services
-              </h3>
-              <p style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 2 }}>
-                Optional one-time add-on services for your vehicle
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--gray-900)', margin: 0 }}>
+                  Additional Services
+                </h3>
+                <span className="pickup-drop-pill">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 10.9 2 11.2 2 11.5V16c0 .6.4 1 1 1h2" />
+                    <circle cx="7" cy="17" r="2" />
+                    <circle cx="17" cy="17" r="2" />
+                  </svg>
+                  <span>With Pick up and Drop facility</span>
+                </span>
+              </div>
+              <p style={{ fontSize: 12, color: 'var(--gray-500)', marginTop: 4 }}>
+                Specialized one-time services with convenient pick up & drop facility
               </p>
             </div>
             {selectedAddonIds.length > 0 && (
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', background: 'var(--primary-light)', padding: '3px 8px', borderRadius: 12 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', background: 'var(--primary-light)', padding: '3px 8px', borderRadius: 12, flexShrink: 0 }}>
                 {selectedAddonIds.length} Added
               </span>
             )}
@@ -348,7 +360,12 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
 
                   <div className="addon-banner-content">
                     <div>
-                      <div className="addon-banner-name">{addon.name}</div>
+                      <div className="addon-banner-name">
+                        <span>{addon.name}</span>
+                        {addon.hasPickupDrop && (
+                          <span className="addon-card-pickup-badge">Pick Up & Drop</span>
+                        )}
+                      </div>
                       <div className="addon-banner-desc">{addon.desc}</div>
                     </div>
                     <div className={`addon-banner-price ${addon.priceOnCall ? 'on-call' : ''}`}>

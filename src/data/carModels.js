@@ -16,17 +16,10 @@ export const CAR_TYPE_INFO = {
   },
   suv: {
     id: 'suv',
-    label: 'SUV / Compact SUV',
+    label: 'XUV / SUV',
     subtitle: 'Mahindra Thar, Creta, Seltos, Brezza',
     iconType: 'suv',
     image: '/assets/car-thar.jpg'
-  },
-  sevenSeater: {
-    id: 'sevenSeater',
-    label: '7 Seater / MUV',
-    subtitle: 'Toyota Innova, Ertiga, Scorpio, XUV700',
-    iconType: 'suv',
-    image: '/assets/car-innova.jpg'
   },
   luxury: {
     id: 'luxury',

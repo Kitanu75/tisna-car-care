@@ -15,10 +15,7 @@ export default function Navbar({ step = 1, onBack, onReset }) {
             </svg>
           </button>
         ) : (
-          <div className="navbar-pill-tag">
-            <span className="navbar-pill-dot" />
-            <span>Doorstep Care</span>
-          </div>
+          <div className="navbar-action-spacer" />
         )}
       </div>
 
@@ -28,6 +25,9 @@ export default function Navbar({ step = 1, onBack, onReset }) {
           alt="Tisna Car"
           className="navbar-brand-img"
         />
+        <div className="navbar-tagline">
+          Your Doorstep Car Solution
+        </div>
       </div>
 
       <div className="navbar-right-action">
