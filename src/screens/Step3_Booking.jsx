@@ -9,6 +9,7 @@ export default function Step3_Booking({ bookingData, onBack, onGoHome }) {
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [society, setSociety] = useState('');
+  const [parkingSlot, setParkingSlot] = useState('');
   const [flatNo, setFlatNo] = useState('');
   const [carNumber, setCarNumber] = useState('');
   const [confirmed, setConfirmed] = useState(null);
@@ -19,7 +20,7 @@ export default function Step3_Booking({ bookingData, onBack, onGoHome }) {
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   const amount = bookingData?.amount || 0;
-  const planName = bookingData?.planName || 'Standard Plan';
+  const planName = bookingData?.planName || 'Standard Care';
   const carTypeLabel = bookingData?.carTypeLabel || 'Small Hatchback';
   const selectedAddons = bookingData?.selectedAddons || [];
 
@@ -58,6 +59,7 @@ export default function Step3_Booking({ bookingData, onBack, onGoHome }) {
       customerName: name.trim(),
       customerPhone: mobile.trim(),
       society: society.trim(),
+      parkingSlot: parkingSlot.trim() || 'Not specified',
       flatNo: flatNo.trim() || 'Not specified',
       carNumber: carNumber.trim() || 'Not provided',
       carType: bookingData?.carType,
@@ -85,7 +87,8 @@ export default function Step3_Booking({ bookingData, onBack, onGoHome }) {
       `• *Selected Plan:* ${planName}\n` +
       `• *Optional Add-ons:* ${addonsText}\n` +
       `• *Total Payable:* Rs. ${amount.toLocaleString('en-IN')}\n` +
-      `• *Address:* ${society.trim()}${flatNo ? ', Flat ' + flatNo.trim() : ''}\n\n` +
+      `• *Address:* ${society.trim()}${flatNo ? ', Flat ' + flatNo.trim() : ''}\n` +
+      `• *Parking Slot No.:* ${parkingSlot.trim() || 'Not specified'}\n\n` +
       `_Booking request submitted via Tisna Car website._`
     );
 
@@ -277,6 +280,24 @@ export default function Step3_Booking({ bookingData, onBack, onGoHome }) {
             }}
           />
           {errors.society && <span className="form-error-msg">{errors.society}</span>}
+        </div>
+
+        <div className="form-group">
+          <label className="form-label" htmlFor="parking-slot-input">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
+            </svg>
+            <span>Parking Slot No. (Optional)</span>
+          </label>
+          <input
+            id="parking-slot-input"
+            className="form-input"
+            type="text"
+            placeholder="e.g. B2-45, Basement 1"
+            value={parkingSlot}
+            onChange={(e) => setParkingSlot(e.target.value.toUpperCase())}
+          />
         </div>
 
         <div className="form-group">

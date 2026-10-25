@@ -4,24 +4,28 @@ export const CAR_TYPE_INFO = {
     id: 'hatchback',
     label: 'Small Hatchback',
     subtitle: 'Alto, WagonR, i10, Swift',
-    iconType: 'hatchback'
+    iconType: 'hatchback',
+    image: '/assets/hatchback-car.jpg'
   },
   sedan: {
     id: 'sedan',
     label: 'Sedan',
     subtitle: 'Dzire, City, Verna, Virtus',
-    iconType: 'sedan'
+    iconType: 'sedan',
+    image: '/assets/honda-city.png'
   },
   suv: {
     id: 'suv',
     label: 'SUV',
     subtitle: 'Creta, Seltos, Harrier',
-    iconType: 'suv'
+    iconType: 'suv',
+    image: '/assets/suv-car.jpg'
   },
   luxury: {
     id: 'luxury',
     label: 'Luxury',
     subtitle: 'BMW, Audi, Mercedes',
-    iconType: 'luxury'
+    iconType: 'luxury',
+    image: '/assets/luxury-car.jpg'
   }
 };

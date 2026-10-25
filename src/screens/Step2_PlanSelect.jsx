@@ -4,64 +4,61 @@ import StepIndicator from '../components/StepIndicator';
 const PLANS_DATA = {
   basic: {
     key: 'basic',
-    name: 'Basic',
-    subtitle: 'Essential cleaning for your car',
+    name: 'Basic Care',
+    subtitle: 'Everyday exterior cleanliness',
     pricing: { hatchback: 999, sedan: 1199, suv: 1499, luxury: 1999 },
     baseFeatures: [
-      'Exterior wash',
-      'Basic interior cleaning',
-      'Tyre cleaning'
+      'Daily exterior dust cleaning',
+      'Windshield & window cleaning',
+      'Mirrors & door handles cleaning'
     ],
-    moreFeatures: [
-      'Microfiber wipe down',
-      'Footmat cleaning'
-    ]
+    moreFeatures: []
   },
   standard: {
     key: 'standard',
-    name: 'Standard',
+    name: 'Standard Care',
     badge: 'Most Popular',
     subtitle: 'Complete care inside & out',
     pricing: { hatchback: 1499, sedan: 1799, suv: 2199, luxury: 2799 },
     isPopular: true,
     baseFeatures: [
-      'Exterior wash',
-      'Interior cleaning',
-      'Tyre polish'
+      'Everything in Basic',
+      'Interior cleaning 1×/month',
+      'Dashboard cleaning'
     ],
     moreFeatures: [
-      'Dashboard cleaning',
-      'Cabin vacuuming'
+      'Floor mat cleaning'
     ]
   },
   premium: {
     key: 'premium',
-    name: 'Premium',
+    name: 'Premium Care',
     subtitle: 'Deep cleaning & extra shine',
     pricing: { hatchback: 1999, sedan: 2499, suv: 2999, luxury: 3799 },
     baseFeatures: [
-      'Exterior foam wash',
-      'Deep interior cleaning',
-      'Tyre polish'
+      'Everything in Standard',
+      'Tyre polish 1×/month',
+      'Interior polish 1×/month'
     ],
     moreFeatures: [
-      'Dashboard polish',
-      'Glass cleaning'
+      'Exterior foam wash 1×/month'
     ]
   },
   luxury: {
     key: 'luxury',
-    name: 'Luxury',
-    subtitle: 'Complete detailing & protection',
+    name: 'Luxury Care',
+    subtitle: 'Ultimate cleaning & premium shine',
     pricing: { hatchback: 2999, sedan: 3499, suv: 3999, luxury: 4999 },
     baseFeatures: [
-      'Exterior wash & wax',
-      'Full interior detailing',
-      'Tyre & alloy gloss'
+      'Everything in Premium',
+      'Powerful vacuum interior cleaning',
+      'Full pressure wash 1×/month'
     ],
     moreFeatures: [
-      'Leather conditioning',
-      'Anti-fog glass cleaning'
+      'Deep interior cleaning 1×/month',
+      'Dashboard & trim polish 2×/month',
+      'Tyre polish 2×/month',
+      'Priority booking'
     ]
   }
 };
@@ -72,44 +69,28 @@ const ADDITIONAL_SERVICES = [
     name: 'Interior Dry Cleaning',
     desc: 'Seats, carpet & roof vacuuming',
     price: 999,
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
-      </svg>
-    )
+    image: '/assets/service-dry-clean.jpg'
   },
   {
     id: 'foam-wash',
     name: 'Exterior Foam Wash',
     desc: 'Snow foam wash & tyre pressure clean',
     price: 299,
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M2 12h20M2 6h20M2 18h20" />
-      </svg>
-    )
+    image: '/assets/service-foam-wash.jpg'
   },
   {
     id: 'polishing',
     name: 'Car Polishing',
     desc: 'Swirl removal & paint gloss shine',
     price: 1499,
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-      </svg>
-    )
+    image: '/assets/service-polishing.jpg'
   },
   {
     id: 'ceramic-coating',
     name: 'Ceramic Coating',
     desc: '9H hydrophobic long-lasting protection',
     price: 5999,
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-      </svg>
-    )
+    image: '/assets/service-ceramic-coating.jpg'
   }
 ];
 
@@ -145,7 +126,7 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
     onNext({
       ...carData,
       planKey: selectedPlan.key,
-      planName: `${selectedPlan.name} Plan`,
+      planName: selectedPlan.name,
       baseAmount: basePrice,
       selectedAddons: selectedAddonsList,
       addonsTotal,
@@ -241,8 +222,10 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
 
                 {/* Inline Action Row: More / Less toggle & Radio Selection */}
                 <div className="plan-card-action-row">
+                  {plan.moreFeatures.length > 0 ? (
                   <button
                     type="button"
+                    id={`plan-more-${plan.key}`}
                     className="plan-more-toggle-btn"
                     onClick={(e) => toggleExpand(plan.key, e)}
                   >
@@ -261,6 +244,7 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
                       <polyline points="6 9 12 15 18 9" />
                     </svg>
                   </button>
+                  ) : <span />}
 
                   <div className={`car-card-radio-circle ${isSelected ? 'checked' : ''}`}>
                     {isSelected && (
@@ -293,71 +277,35 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
             )}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div className="addon-banner-list">
             {ADDITIONAL_SERVICES.map((addon) => {
               const isChecked = selectedAddonIds.includes(addon.id);
 
               return (
                 <div
                   key={addon.id}
+                  id={`addon-${addon.id}`}
+                  className={`addon-banner-card ${isChecked ? 'selected' : ''}`}
                   onClick={() => toggleAddon(addon.id)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 14px',
-                    borderRadius: 'var(--radius-sm)',
-                    border: isChecked ? '2px solid var(--primary)' : '1.5px solid var(--gray-200)',
-                    background: isChecked ? 'var(--primary-light)' : 'var(--white)',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 8,
-                      background: isChecked ? 'rgba(8, 102, 232, 0.15)' : 'var(--gray-100)',
-                      color: isChecked ? 'var(--primary)' : 'var(--gray-600)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}>
-                      {addon.icon}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--gray-900)' }}>
-                        {addon.name}
-                      </div>
-                      <div style={{ fontSize: 11, color: 'var(--gray-500)', marginTop: 1 }}>
-                        {addon.desc}
-                      </div>
-                    </div>
+                  <img className="addon-banner-img" src={addon.image} alt={addon.name} loading="lazy" />
+                  <div className="addon-banner-overlay" />
+
+                  <div className={`addon-banner-check ${isChecked ? 'checked' : ''}`}>
+                    {isChecked && (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--primary)' }}>
-                      +₹{addon.price.toLocaleString('en-IN')}
+                  <div className="addon-banner-content">
+                    <div>
+                      <div className="addon-banner-name">{addon.name}</div>
+                      <div className="addon-banner-desc">{addon.desc}</div>
                     </div>
-                    <div style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: 6,
-                      border: isChecked ? 'none' : '2px solid var(--gray-300)',
-                      background: isChecked ? 'var(--primary)' : 'transparent',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      flexShrink: 0
-                    }}>
-                      {isChecked && (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      )}
+                    <div className="addon-banner-price">
+                      +₹{addon.price.toLocaleString('en-IN')}
                     </div>
                   </div>
                 </div>
