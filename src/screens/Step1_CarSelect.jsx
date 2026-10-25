@@ -12,7 +12,9 @@ export default function Step1_CarSelect({ onNext, initialData }) {
     if (!selectedType || !currentInfo) return;
     onNext({
       carType: selectedType,
-      carTypeLabel: currentInfo.label
+      carTypeLabel: currentInfo.label,
+      carImage: currentInfo.image,
+      carSubtitle: currentInfo.subtitle
     });
   };
 

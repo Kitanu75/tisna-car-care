@@ -1145,56 +1145,106 @@ body {
   color: var(--primary);
 }
 
-/* Selected Vehicle Header Bar (Step 2) */
-.car-selection-badge-bar {
+/* Selected Vehicle Hero Banner (Step 2 - Banner type car photo) */
+.vehicle-banner-card {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+  border: 1.5px solid #DBEAFE;
+  border-radius: 16px;
   padding: 12px 16px;
-  background: var(--primary-light);
-  border: 1px solid rgba(8, 102, 232, 0.18);
-  border-radius: var(--radius-sm);
-  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(8, 102, 232, 0.08);
+  gap: 12px;
 }
 
-.car-selection-thumb {
-  width: 58px;
-  height: 36px;
-  object-fit: contain;
-  flex-shrink: 0;
-  background: var(--white);
-  border-radius: 6px;
-  padding: 2px;
-}
-
-.car-selection-info {
+.vehicle-banner-details {
   flex: 1;
+  min-width: 0;
+  z-index: 2;
 }
 
-.car-selection-label {
-  display: block;
+.vehicle-banner-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #DBEAFE;
+  color: #1D4ED8;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-bottom: 3px;
+}
+
+.vehicle-banner-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10B981;
+}
+
+.vehicle-banner-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--gray-900);
+  line-height: 1.2;
+  margin: 0;
+}
+
+.vehicle-banner-subtitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-500);
+  margin: 2px 0 6px;
+  line-height: 1.3;
+}
+
+.vehicle-banner-change-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 11px;
   font-weight: 700;
-  text-transform: uppercase;
   color: var(--primary);
-  letter-spacing: 0.5px;
-}
-
-.car-selection-info h4 {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--gray-900);
-  margin-top: 1px;
-}
-
-.car-selection-change-btn {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--primary);
-  background: none;
-  border: none;
+  background: rgba(8, 102, 232, 0.08);
+  border: 1px solid rgba(8, 102, 232, 0.2);
+  border-radius: 14px;
+  padding: 3px 9px;
   cursor: pointer;
-  text-decoration: underline;
+  transition: all 0.2s ease;
+}
+
+.vehicle-banner-change-btn:hover {
+  background: var(--primary);
+  color: #FFFFFF;
+}
+
+.vehicle-banner-photo-wrap {
+  width: 135px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.vehicle-banner-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12));
+  transition: transform 0.25s ease;
+}
+
+.vehicle-banner-card:hover .vehicle-banner-photo {
+  transform: scale(1.05);
 }
 
 /* Plan Badges and Icons (Step 2) */

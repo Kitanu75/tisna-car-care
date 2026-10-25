@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import StepIndicator from '../components/StepIndicator';
+import { CAR_TYPE_INFO } from '../data/carModels';
 
 const PLANS_DATA = {
   basic: {
@@ -156,6 +157,11 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
   };
 
   const carType = carData?.carType || 'hatchback';
+  const carInfo = CAR_TYPE_INFO[carType] || {
+    label: carData?.carTypeLabel || 'Vehicle',
+    subtitle: carData?.carSubtitle || 'Selected Segment',
+    image: carData?.carImage || '/assets/car-city.jpg'
+  };
   const plansList = Object.values(PLANS_DATA);
   const selectedPlan = PLANS_DATA[selectedPlanKey] || PLANS_DATA.standard;
   const basePrice = selectedPlan.pricing[carType] || selectedPlan.pricing.hatchback;
@@ -194,17 +200,32 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
     <>
       <StepIndicator currentStep={2} />
 
-      {/* Selected Vehicle Badge */}
+      {/* Selected Vehicle Banner Card (Banner type car photo) */}
       <div style={{ padding: '0 20px', marginTop: 12 }}>
         {carData && (
-          <div className="car-selection-badge-bar">
-            <div className="car-selection-info">
-              <span className="car-selection-label">Vehicle</span>
-              <h4>{carData.carTypeLabel}</h4>
+          <div className="vehicle-banner-card">
+            <div className="vehicle-banner-details">
+              <div className="vehicle-banner-pill">
+                <span className="vehicle-banner-dot" />
+                <span>Selected Vehicle</span>
+              </div>
+              <h3 className="vehicle-banner-name">{carInfo.label}</h3>
+              <p className="vehicle-banner-subtitle">{carInfo.subtitle}</p>
+              <button className="vehicle-banner-change-btn" onClick={onBack}>
+                <span>Change Vehicle</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
             </div>
-            <button className="car-selection-change-btn" onClick={onBack}>
-              Change
-            </button>
+
+            <div className="vehicle-banner-photo-wrap">
+              <img
+                src={carInfo.image}
+                alt={carInfo.label}
+                className="vehicle-banner-photo"
+              />
+            </div>
           </div>
         )}
       </div>
