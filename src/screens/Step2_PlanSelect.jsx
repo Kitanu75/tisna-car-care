@@ -32,7 +32,9 @@ const PLANS_DATA = {
     },
     isPopular: true,
     baseFeatures: [
-      'Everything in Basic',
+      'Daily exterior dust cleaning',
+      'Windshield & window cleaning',
+      'Mirrors & door handles cleaning',
       'Interior cleaning 1×/month',
       'Dashboard cleaning'
     ],
@@ -51,7 +53,11 @@ const PLANS_DATA = {
       luxury: 1800
     },
     baseFeatures: [
-      'Everything in Standard',
+      'Daily exterior dust cleaning',
+      'Windshield & window cleaning',
+      'Mirrors & door handles cleaning',
+      'Interior cleaning 1×/month',
+      'Dashboard & floor mat cleaning',
       'Tyre polish 1×/month',
       'Interior polish 1×/month'
     ],
@@ -70,15 +76,18 @@ const PLANS_DATA = {
       luxury: 2200
     },
     baseFeatures: [
-      'Everything in Premium',
+      'Daily exterior dust cleaning',
+      'Windshield & window cleaning',
+      'Mirrors & door handles cleaning',
       'Powerful vacuum interior cleaning',
-      'Full pressure wash 1×/month'
-    ],
-    moreFeatures: [
-      'Deep interior cleaning 1×/month',
+      'Deep interior dry cleaning 1×/month',
       'Dashboard & trim polish 2×/month',
       'Tyre polish 2×/month',
-      'Priority booking'
+      'Full pressure foam wash 1×/month'
+    ],
+    moreFeatures: [
+      'Floor mat pressure wash',
+      'Priority doorstep booking'
     ]
   }
 };
@@ -88,7 +97,7 @@ const ADDITIONAL_SERVICES = [
     id: 'foam-wash',
     name: 'Exterior Foam Wash',
     desc: 'Snow foam wash & tyre pressure clean • Doorstep',
-    pricing: { hatchback: 300, sedan: 350, suv: 400, luxury: 500 },
+    priceOnCall: true,
     image: '/assets/service-foam-wash.jpg'
   },
   {

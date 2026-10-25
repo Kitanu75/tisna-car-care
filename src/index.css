@@ -1199,18 +1199,18 @@ body {
 
 /* Plan Badges and Icons (Step 2) */
 .plan-badge-pill {
-  position: absolute;
-  top: -10px;
-  left: 18px;
+  display: inline-flex;
+  align-items: center;
   background: var(--primary);
   color: var(--white);
   font-size: 10px;
   font-weight: 800;
-  padding: 3px 10px;
-  border-radius: 20px;
+  padding: 3px 8px;
+  border-radius: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   box-shadow: 0 2px 6px rgba(8, 102, 232, 0.3);
+  line-height: 1.2;
 }
 
 .plan-card-icon-wrap {
