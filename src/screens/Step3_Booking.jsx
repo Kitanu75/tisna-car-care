@@ -80,7 +80,7 @@ export default function Step3_Booking({ bookingData, onBack, onGoHome }) {
 
     // Format WhatsApp message
     const addonsText = selectedAddons.length > 0 
-      ? selectedAddons.map(a => `${a.name} (+₹${a.price})`).join(', ')
+      ? selectedAddons.map(a => a.isPriceOnCall ? `${a.name} (Price on Call)` : `${a.name} (+₹${a.price})`).join(', ')
       : 'None';
 
     const msg = encodeURIComponent(
@@ -143,7 +143,9 @@ export default function Step3_Booking({ bookingData, onBack, onGoHome }) {
           {selectedAddons.length > 0 && (
             <div className="booking-summary-row">
               <span className="label">Add-ons</span>
-              <span className="value">{selectedAddons.map(a => a.name).join(', ')}</span>
+              <span className="value">
+                {selectedAddons.map(a => a.isPriceOnCall ? `${a.name} (Price on Call)` : `${a.name} (+₹${a.price})`).join(', ')}
+              </span>
             </div>
           )}
           <div className="booking-summary-row">
@@ -187,7 +189,7 @@ export default function Step3_Booking({ bookingData, onBack, onGoHome }) {
               <h4>{planName} • {carTypeLabel}</h4>
               {selectedAddons.length > 0 && (
                 <p style={{ color: 'var(--primary)', fontWeight: 600, fontSize: 12, marginTop: 4 }}>
-                  + Optional add-ons: {selectedAddons.map(a => `${a.name} (+₹${a.price})`).join(', ')}
+                  + Optional add-ons: {selectedAddons.map(a => a.isPriceOnCall ? `${a.name} (Price on Call)` : `${a.name} (+₹${a.price})`).join(', ')}
                 </p>
               )}
             </div>

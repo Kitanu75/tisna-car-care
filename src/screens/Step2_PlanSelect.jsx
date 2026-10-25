@@ -6,7 +6,13 @@ const PLANS_DATA = {
     key: 'basic',
     name: 'Basic Care',
     subtitle: 'Everyday exterior cleanliness',
-    pricing: { hatchback: 999, sedan: 1199, suv: 1499, sevenSeater: 1799, luxury: 1999 },
+    pricing: {
+      hatchback: 450,
+      sedan: 600,
+      suv: 700,
+      sevenSeater: 750,
+      luxury: 900
+    },
     baseFeatures: [
       'Daily exterior dust cleaning',
       'Windshield & window cleaning',
@@ -19,7 +25,13 @@ const PLANS_DATA = {
     name: 'Standard Care',
     badge: 'Most Popular',
     subtitle: 'Complete care inside & out',
-    pricing: { hatchback: 1499, sedan: 1799, suv: 2199, sevenSeater: 2499, luxury: 2799 },
+    pricing: {
+      hatchback: 650,
+      sedan: 800,
+      suv: 900,
+      sevenSeater: 1000,
+      luxury: 1300
+    },
     isPopular: true,
     baseFeatures: [
       'Everything in Basic',
@@ -34,7 +46,13 @@ const PLANS_DATA = {
     key: 'premium',
     name: 'Premium Care',
     subtitle: 'Deep cleaning & extra shine',
-    pricing: { hatchback: 1999, sedan: 2499, suv: 2999, sevenSeater: 3499, luxury: 3799 },
+    pricing: {
+      hatchback: 850,
+      sedan: 1200,
+      suv: 1400,
+      sevenSeater: 1550,
+      luxury: 1800
+    },
     baseFeatures: [
       'Everything in Standard',
       'Tyre polish 1×/month',
@@ -48,7 +66,13 @@ const PLANS_DATA = {
     key: 'luxury',
     name: 'Luxury Care',
     subtitle: 'Ultimate cleaning & premium shine',
-    pricing: { hatchback: 2999, sedan: 3499, suv: 3999, sevenSeater: 4499, luxury: 4999 },
+    pricing: {
+      hatchback: 1300,
+      sedan: 1600,
+      suv: 1900,
+      sevenSeater: 2050,
+      luxury: 2200
+    },
     baseFeatures: [
       'Everything in Premium',
       'Powerful vacuum interior cleaning',
@@ -75,35 +99,35 @@ const ADDITIONAL_SERVICES = [
     id: 'dry-cleaning',
     name: 'Interior Dry Cleaning',
     desc: 'Deep seat, carpet & roof vacuuming with high-power machine',
-    pricing: { hatchback: 799, sedan: 899, suv: 999, sevenSeater: 1199, luxury: 1499 },
+    priceOnCall: true,
     image: '/assets/service-vacuum-clean.jpg'
   },
   {
     id: 'polishing',
     name: 'Car Polishing',
     desc: 'Swirl removal & paint gloss shine',
-    pricing: { hatchback: 1299, sedan: 1499, suv: 1699, sevenSeater: 1899, luxury: 2199 },
+    priceOnCall: true,
     image: '/assets/service-polishing.jpg'
   },
   {
     id: 'ceramic-coating',
     name: 'Ceramic Coating',
     desc: '9H hydrophobic long-lasting protection',
-    pricing: { hatchback: 4999, sedan: 5499, suv: 5999, sevenSeater: 6999, luxury: 7999 },
+    priceOnCall: true,
     image: '/assets/service-ceramic-coating.jpg'
   },
   {
     id: 'mechanical-work',
     name: 'Mechanical Works',
     desc: 'Doorstep engine, brakes, AC & battery inspection',
-    pricing: { hatchback: 399, sedan: 449, suv: 499, sevenSeater: 599, luxury: 699 },
+    priceOnCall: true,
     image: '/assets/service-mechanical.jpg'
   },
   {
     id: 'denting-painting',
     name: 'Denting & Painting',
     desc: 'Panel dent repair & flawless paint finish',
-    pricing: { hatchback: 1499, sedan: 1699, suv: 1899, sevenSeater: 2099, luxury: 2499 },
+    priceOnCall: true,
     image: '/assets/service-denting-painting.jpg'
   }
 ];
@@ -136,7 +160,8 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
     .filter(s => selectedAddonIds.includes(s.id))
     .map(s => ({
       ...s,
-      price: s.pricing[carType] || s.pricing.hatchback
+      isPriceOnCall: !!s.priceOnCall,
+      price: s.priceOnCall ? 0 : (s.pricing?.[carType] || s.pricing?.hatchback || 0)
     }));
 
   const addonsTotal = selectedAddonsList.reduce((sum, s) => sum + s.price, 0);
@@ -301,7 +326,7 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
           <div className="addon-banner-list">
             {ADDITIONAL_SERVICES.map((addon) => {
               const isChecked = selectedAddonIds.includes(addon.id);
-              const addonPrice = addon.pricing[carType] || addon.pricing.hatchback;
+              const addonPrice = addon.pricing?.[carType] || addon.pricing?.hatchback || 0;
 
               return (
                 <div
@@ -326,8 +351,8 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
                       <div className="addon-banner-name">{addon.name}</div>
                       <div className="addon-banner-desc">{addon.desc}</div>
                     </div>
-                    <div className="addon-banner-price">
-                      +₹{addonPrice.toLocaleString('en-IN')}
+                    <div className={`addon-banner-price ${addon.priceOnCall ? 'on-call' : ''}`}>
+                      {addon.priceOnCall ? 'Price on Call' : `+₹${addonPrice.toLocaleString('en-IN')}`}
                     </div>
                   </div>
                 </div>

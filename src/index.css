@@ -1903,6 +1903,15 @@ body {
   flex-shrink: 0;
 }
 
+.addon-banner-price.on-call {
+  background: #059669;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.45);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  padding: 4px 10px;
+}
+
 /* Plan Badge Pill (No price overlap) */
 .plan-badge-pill {
   display: inline-flex;
