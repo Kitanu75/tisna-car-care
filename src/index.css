@@ -187,10 +187,10 @@ body {
 
 /* Car photo thumbnail in car type cards */
 .car-card-photo {
-  width: 92px;
-  height: 58px;
+  width: 98px;
+  height: 62px;
   border-radius: 12px;
-  background: #F1F5F9;
+  background: #F8FAFC;
   border: 1.5px solid var(--gray-200);
   display: flex;
   align-items: center;
@@ -198,7 +198,7 @@ body {
   overflow: hidden;
   margin-right: 14px;
   flex-shrink: 0;
-  padding: 2px 4px;
+  padding: 2px;
   transition: all 0.2s ease;
 }
 
@@ -206,19 +206,18 @@ body {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  mix-blend-mode: multiply;
   transition: transform 0.2s ease;
 }
 
 .car-card:hover .car-card-photo,
 .car-card-photo.selected {
   border-color: var(--primary);
-  background: #EBF3FE;
+  background: #EFF6FF;
 }
 
 .car-card-photo.selected img,
 .car-card:hover .car-card-photo img {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 /* Section Header */
@@ -1903,3 +1902,93 @@ body {
   box-shadow: 0 2px 8px rgba(8, 102, 232, 0.4);
   flex-shrink: 0;
 }
+
+/* Plan Badge Pill (No price overlap) */
+.plan-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  background: #1E293B;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.plan-badge-pill.popular-pill {
+  background: linear-gradient(135deg, #0866E8 0%, #1D4ED8 100%);
+  box-shadow: 0 2px 6px rgba(8, 102, 232, 0.35);
+}
+
+/* Form Group & Labels (Step 3 Formatting) */
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 6px;
+}
+
+.form-label svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.form-label .req-star {
+  color: #EF4444;
+  font-weight: 800;
+  margin-left: 2px;
+}
+
+.form-label .opt-tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-400);
+  margin-left: 4px;
+}
+
+/* Authentic WhatsApp Submit Button */
+.btn-whatsapp-order {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 20px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(18, 140, 126, 0.38);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+}
+
+.btn-whatsapp-order:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(18, 140, 126, 0.48);
+  background: linear-gradient(135deg, #28E06D 0%, #0F7A44 100%);
+}
+
+.btn-whatsapp-order:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.btn-whatsapp-order:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
