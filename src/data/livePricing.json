@@ -1,1 +1,32 @@
-{"plans":{"basic":{"hatchback":400,"sedan":500,"suv":600,"luxury":800},"standard":{"hatchback":550,"sedan":650,"suv":700,"luxury":1000},"premium":{"hatchback":750,"sedan":850,"suv":900,"luxury":1200},"luxury":{"hatchback":950,"sedan":1050,"suv":1200,"luxury":1500}},"carTypePricing":{"basic":{"hatchback":400,"sedan":500,"suv":600,"luxury":800},"standard":{"hatchback":550,"sedan":650,"suv":700,"luxury":1000},"premium":{"hatchback":750,"sedan":850,"suv":900,"luxury":1200},"luxury":{"hatchback":950,"sedan":1050,"suv":1200,"luxury":1500}},"otherServices":{"foam-wash":"Price on Call","dry-cleaning":"Price on Call","polishing":"Price on Call","ceramic-coating":"Price on Call","mechanical-work":"Price on Call","denting-painting":"Price on Call"},"payment":{"paymentPhone":"+91 70420 62926","whatsappNumber":"917042062926","upiId":"tisnacarcare@upi","platformFee":0}}
+{
+  "plans": {
+    "basic": {
+      "hatchback": 399,
+      "sedan": 499,
+      "suv": 599
+    },
+    "premium": {
+      "hatchback": 799,
+      "sedan": 899,
+      "suv": 999
+    }
+  },
+  "carTypePricing": {
+    "basic": {
+      "hatchback": 399,
+      "sedan": 499,
+      "suv": 599
+    },
+    "premium": {
+      "hatchback": 799,
+      "sedan": 899,
+      "suv": 999
+    }
+  },
+  "payment": {
+    "paymentPhone": "+91 70420 62926",
+    "whatsappNumber": "917042062926",
+    "upiId": "tisnacarcare@upi",
+    "platformFee": 0
+  }
+}

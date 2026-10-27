@@ -13,7 +13,7 @@ export default function AdminPriceModal({ isOpen, onClose }) {
   const [isLoadingBookings, setIsLoadingBookings] = useState(false);
 
   const ADMIN_PIN = "2026";
-  const carCategories = ['hatchback', 'sedan', 'suv', 'luxury'];
+  const carCategories = ['hatchback', 'sedan', 'suv'];
 
   const loadBookings = async () => {
     setIsLoadingBookings(true);
@@ -255,9 +255,7 @@ export default function AdminPriceModal({ isOpen, onClose }) {
 
               {[
                 { key: 'basic', label: 'Basic Care Plan (₹/month)' },
-                { key: 'standard', label: 'Standard Care Plan (₹/month)' },
-                { key: 'premium', label: 'Premium Care Plan (₹/month)' },
-                { key: 'luxury', label: 'Luxury Care Plan (₹/month)' }
+                { key: 'premium', label: 'Premium Care Plan (₹/month)' }
               ].map((p, idx) => (
                 <div key={p.key} style={{ marginTop: idx > 0 ? 16 : 0, borderBottom: '1px solid #E2E8F0', paddingBottom: 12 }}>
                   <p style={{ fontSize: 13, fontWeight: 700, color: '#1E293B', marginBottom: 8 }}>{p.label}</p>

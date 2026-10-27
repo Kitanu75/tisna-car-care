@@ -2090,3 +2090,309 @@ body {
   cursor: not-allowed;
 }
 
+/* ========================================================
+   EXACT SCREENSHOT MATCH: 2-PLAN HERO CARDS
+   ======================================================== */
+.plan-hero-container {
+  padding: 14px 18px 24px;
+}
+
+.plan-card-hero {
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  margin-bottom: 16px;
+  background: #FFFFFF;
+}
+
+/* Basic Care Card */
+.plan-card-hero.basic {
+  border: 1.5px solid #E2E8F0;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+  padding: 18px 18px;
+}
+
+.plan-card-hero.basic.selected {
+  border-color: #0072F5;
+  box-shadow: 0 8px 30px rgba(0, 114, 245, 0.14);
+  transform: translateY(-2px);
+}
+
+.plan-card-hero.basic:hover:not(.selected) {
+  border-color: #CBD5E1;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.05);
+}
+
+/* Premium Care Card */
+.plan-card-hero.premium {
+  border: 2px solid #0072F5;
+  box-shadow: 0 6px 24px rgba(0, 114, 245, 0.12);
+  overflow: hidden;
+}
+
+.plan-card-hero.premium.selected {
+  border-color: #0060E0;
+  box-shadow: 0 10px 36px rgba(0, 114, 245, 0.22);
+  transform: translateY(-2px);
+}
+
+/* Plan Hero Header */
+.plan-hero-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plan-hero-header.premium {
+  background: linear-gradient(135deg, #0072F5 0%, #0050D8 100%);
+  padding: 14px 18px;
+  align-items: center;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+}
+
+.plan-hero-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.plan-hero-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.plan-hero-icon-box.basic {
+  background: #E0F2FE;
+  color: #0284C7;
+}
+
+.plan-hero-icon-box.premium {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #FFFFFF;
+}
+
+.plan-hero-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.plan-hero-title.premium {
+  color: #FFFFFF;
+}
+
+.plan-hero-popular-badge {
+  background: #FDE047;
+  color: #854D0E;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 6px rgba(133, 77, 14, 0.15);
+}
+
+.plan-hero-subtitle {
+  font-size: 12.5px;
+  color: #64748B;
+  font-weight: 500;
+  margin: 3px 0 0 0;
+}
+
+.plan-hero-subtitle.premium {
+  color: #E0F2FE;
+}
+
+/* Price Box */
+.plan-hero-price-box.basic {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.plan-hero-price-box.basic .plan-hero-price {
+  font-size: 26px;
+  font-weight: 900;
+  color: #0072F5;
+  line-height: 1;
+}
+
+.plan-hero-price-box.basic .plan-hero-freq {
+  font-size: 12px;
+  color: #0284C7;
+  font-weight: 600;
+}
+
+.plan-hero-price-box.premium {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 6px 14px;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.plan-hero-price-box.premium .plan-hero-price {
+  font-size: 22px;
+  font-weight: 900;
+  color: #0072F5;
+  line-height: 1;
+}
+
+.plan-hero-price-box.premium .plan-hero-freq {
+  font-size: 11px;
+  color: #0284C7;
+  font-weight: 700;
+}
+
+/* Plan Body */
+.plan-hero-body {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 12px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.plan-hero-body.premium {
+  display: block;
+  padding: 16px 18px 18px;
+  background: #FFFFFF;
+  margin-top: 0;
+}
+
+.plan-hero-plus-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0072F5;
+  margin-bottom: 12px;
+}
+
+.plan-hero-content-row {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Features List */
+.plan-hero-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.plan-hero-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #334155;
+  line-height: 1.35;
+}
+
+.plan-hero-check {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #10B981;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Car Visuals */
+.plan-hero-car-visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 110px;
+}
+
+.plan-hero-car-visual.basic .plan-hero-aura {
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #E0F2FE 30%, rgba(224, 242, 254, 0) 70%);
+  z-index: 1;
+}
+
+.plan-hero-sparkle {
+  position: absolute;
+  color: #38BDF8;
+  font-size: 14px;
+  z-index: 2;
+  user-select: none;
+}
+.plan-hero-sparkle.sp1 {
+  top: 10px;
+  right: 18px;
+}
+.plan-hero-sparkle.sp2 {
+  bottom: 14px;
+  left: 6px;
+  font-size: 12px;
+}
+
+.plan-hero-car-img {
+  width: 100%;
+  max-width: 140px;
+  height: auto;
+  object-fit: contain;
+  position: relative;
+  z-index: 3;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.08));
+}
+
+.plan-hero-car-img.premium {
+  border-radius: 12px;
+  max-width: 145px;
+}
+
+/* Divider: Select Your Subscription */
+.plan-subscription-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 22px 0 16px;
+  padding: 0 10px;
+}
+
+.plan-subscription-divider .divider-line {
+  flex: 1;
+  height: 1.5px;
+  background: #CBD5E1;
+}
+
+.plan-subscription-divider .divider-text {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0F172A;
+  letter-spacing: 0.2px;
+}
+
+

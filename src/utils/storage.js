@@ -62,27 +62,15 @@ const DEFAULT_CARS = [
   }
 ];
 
-// Initial default pricing matching user specifications
+// Initial default pricing matching user specifications: 3 models, 2 services
 export const DEFAULT_PRICING = {
   plans: {
-    basic: { hatchback: 400, sedan: 500, suv: 600, luxury: 800 },
-    standard: { hatchback: 550, sedan: 650, suv: 700, luxury: 1000 },
-    premium: { hatchback: 750, sedan: 850, suv: 900, luxury: 1200 },
-    luxury: { hatchback: 950, sedan: 1050, suv: 1200, luxury: 1500 }
+    basic: { hatchback: 399, sedan: 499, suv: 599 },
+    premium: { hatchback: 799, sedan: 899, suv: 999 }
   },
   carTypePricing: {
-    basic: { hatchback: 400, sedan: 500, suv: 600, luxury: 800 },
-    standard: { hatchback: 550, sedan: 650, suv: 700, luxury: 1000 },
-    premium: { hatchback: 750, sedan: 850, suv: 900, luxury: 1200 },
-    luxury: { hatchback: 950, sedan: 1050, suv: 1200, luxury: 1500 }
-  },
-  otherServices: {
-    'foam-wash': 'Price on Call',
-    'dry-cleaning': 'Price on Call',
-    'polishing': 'Price on Call',
-    'ceramic-coating': 'Price on Call',
-    'mechanical-work': 'Price on Call',
-    'denting-painting': 'Price on Call'
+    basic: { hatchback: 399, sedan: 499, suv: 599 },
+    premium: { hatchback: 799, sedan: 899, suv: 999 }
   },
   payment: {
     paymentPhone: "+91 70420 62926",
@@ -109,17 +97,12 @@ export const storage = {
           ...parsed,
           plans: {
             basic: { ...fallback.plans?.basic, ...(parsed.plans?.basic || {}) },
-            standard: { ...fallback.plans?.standard, ...(parsed.plans?.standard || {}) },
-            premium: { ...fallback.plans?.premium, ...(parsed.plans?.premium || {}) },
-            luxury: { ...fallback.plans?.luxury, ...(parsed.plans?.luxury || {}) }
+            premium: { ...fallback.plans?.premium, ...(parsed.plans?.premium || {}) }
           },
           carTypePricing: {
             basic: { ...fallback.carTypePricing?.basic, ...(parsed.carTypePricing?.basic || {}) },
-            standard: { ...fallback.carTypePricing?.standard, ...(parsed.carTypePricing?.standard || {}) },
-            premium: { ...fallback.carTypePricing?.premium, ...(parsed.carTypePricing?.premium || {}) },
-            luxury: { ...fallback.carTypePricing?.luxury, ...(parsed.carTypePricing?.luxury || {}) }
+            premium: { ...fallback.carTypePricing?.premium, ...(parsed.carTypePricing?.premium || {}) }
           },
-          otherServices: { ...fallback.otherServices, ...(parsed.otherServices || {}) },
           payment: { ...fallback.payment, ...(parsed.payment || {}) }
         };
       }
