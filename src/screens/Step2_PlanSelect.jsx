@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CAR_TYPE_INFO } from '../data/carModels';
+import { subscribeToPricingChanges, fetchPricingFromCloud } from '../utils/firebase';
 import { storage } from '../utils/storage';
 
 const PLANS_DATA = {
@@ -7,11 +8,6 @@ const PLANS_DATA = {
     key: 'basic',
     name: 'Basic Care',
     subtitle: 'Everyday exterior cleanliness',
-    pricing: {
-      hatchback: 399,
-      sedan: 499,
-      suv: 599
-    },
     features: [
       'Daily exterior dust cleaning',
       'Windshield and window cleaning',
@@ -26,11 +22,6 @@ const PLANS_DATA = {
     name: 'Premium Care',
     badge: 'MOST POPULAR',
     subtitle: 'Deep clean. More shine. More care.',
-    pricing: {
-      hatchback: 799,
-      sedan: 899,
-      suv: 999
-    },
     isPopular: true,
     plusTitle: 'Includes all Basic Care services, plus:',
     plusFeatures: [
@@ -46,15 +37,40 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
   // Default selected plan is Premium Care per design screenshot
   const [selectedPlanKey, setSelectedPlanKey] = useState('premium');
 
-  // 100% Dynamic Live Pricing synced in realtime from Firebase Cloud
+  // 100% Dynamic Live Pricing fetched DIRECTLY from Firebase Realtime Database
   const [livePricing, setLivePricing] = useState(() => storage.getPricing());
 
   useEffect(() => {
+    // 1. Initial direct fetch from Firebase Realtime Database node "tisna_config/pricing"
+    fetchPricingFromCloud().then((cloudData) => {
+      if (cloudData) {
+        setLivePricing(cloudData);
+        try {
+          localStorage.setItem('tisna_pricing_config', JSON.stringify(cloudData));
+        } catch {}
+      }
+    });
+
+    // 2. Realtime listener directly from Firebase RTDB (updates instantly on DB change)
+    const unsubscribe = subscribeToPricingChanges((cloudData) => {
+      if (cloudData) {
+        setLivePricing(cloudData);
+        try {
+          localStorage.setItem('tisna_pricing_config', JSON.stringify(cloudData));
+        } catch {}
+      }
+    });
+
+    // 3. Storage event listener for cross-tab sync
     const handleUpdate = () => {
       setLivePricing(storage.getPricing());
     };
     window.addEventListener('tisna_pricing_updated', handleUpdate);
-    return () => window.removeEventListener('tisna_pricing_updated', handleUpdate);
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+      window.removeEventListener('tisna_pricing_updated', handleUpdate);
+    };
   }, []);
 
   const carType = carData?.carType || 'hatchback';
@@ -63,14 +79,15 @@ export default function Step2_PlanSelect({ carData, onNext, onBack }) {
     subtitle: carData?.carSubtitle || 'Selected Segment'
   };
 
-  // Helper resolving plan price dynamically from Firebase Realtime Database
+  // Helper resolving plan price DIRECTLY from Firebase Realtime Database
   const getPlanPrice = (planKey, segment) => {
-    const liveVal = livePricing?.plans?.[planKey]?.[segment]
+    const dbPrice = livePricing?.plans?.[planKey]?.[segment]
       ?? livePricing?.carTypePricing?.[planKey]?.[segment];
-    if (liveVal !== undefined && liveVal !== null && !isNaN(Number(liveVal))) {
-      return Number(liveVal);
+
+    if (dbPrice !== undefined && dbPrice !== null && !isNaN(Number(dbPrice))) {
+      return Number(dbPrice);
     }
-    return PLANS_DATA[planKey]?.pricing?.[segment] || 0;
+    return 0;
   };
 
   const basicPrice = getPlanPrice('basic', carType);
