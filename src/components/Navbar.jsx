@@ -1,14 +1,14 @@
 import React from 'react';
 
-export default function Navbar({ step = 1, onBack, onReset }) {
+export default function Navbar({ step = 1, onBack, onReset, onOpenAdmin }) {
   return (
     <nav className="navbar">
       <div className="navbar-left-action">
         <button
           className="navbar-icon-btn"
-          onClick={step > 1 ? onBack : onReset}
-          aria-label={step > 1 ? "Back" : "Menu"}
-          title={step > 1 ? "Go Back" : "Menu"}
+          onClick={step > 1 ? onBack : onOpenAdmin}
+          aria-label={step > 1 ? "Back" : "Admin Menu"}
+          title={step > 1 ? "Go Back" : "Admin Menu"}
         >
           {step > 1 ? (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

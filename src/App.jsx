@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import AdminPriceModal from './components/AdminPriceModal';
 import Step1_CarSelect from './screens/Step1_CarSelect';
 import Step2_PlanSelect from './screens/Step2_PlanSelect';
 import Step3_Booking from './screens/Step3_Booking';
@@ -10,6 +11,7 @@ export default function App() {
   const [step, setStep] = useState(1);
   const [carData, setCarData] = useState(null);
   const [bookingData, setBookingData] = useState(null);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
 
   useEffect(() => {
     // Sync live pricing from Firebase Cloud Realtime Database
@@ -52,6 +54,7 @@ export default function App() {
           step={step}
           onBack={step === 2 ? handleStep2Back : step === 3 ? handleStep3Back : undefined}
           onReset={handleGoHome}
+          onOpenAdmin={() => setIsAdminOpen(true)}
         />
 
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -79,7 +82,13 @@ export default function App() {
           )}
         </main>
 
-        <Footer />
+        <Footer onOpenAdmin={() => setIsAdminOpen(true)} />
+
+        {/* Admin Portal Modal */}
+        <AdminPriceModal
+          isOpen={isAdminOpen}
+          onClose={() => setIsAdminOpen(false)}
+        />
       </div>
     </div>
   );

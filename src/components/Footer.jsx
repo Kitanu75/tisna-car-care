@@ -1,7 +1,7 @@
 import React from 'react';
 import { storage } from '../utils/storage';
 
-export default function Footer() {
+export default function Footer({ onOpenAdmin }) {
   const pricing = storage.getPricing();
   const phone = pricing?.payment?.paymentPhone || '+91 70420 62926';
   const wa = pricing?.payment?.whatsappNumber || '917042062926';
@@ -27,8 +27,31 @@ export default function Footer() {
           <span>WhatsApp</span>
         </a>
       </div>
-      <div className="footer-copyright">
-        © {new Date().getFullYear()} Tisna Car. All rights reserved.
+      <div className="footer-copyright" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+        <span>© {new Date().getFullYear()} Tisna Car. All rights reserved.</span>
+        {onOpenAdmin && (
+          <button
+            onClick={onOpenAdmin}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--gray-400)',
+              fontSize: 11,
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4
+            }}
+            title="Open Admin Price Manager"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <span>Admin</span>
+          </button>
+        )}
       </div>
     </footer>
   );
