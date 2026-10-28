@@ -37,9 +37,6 @@ export default function Step3_Booking({ bookingData, onBack, onGoHome }) {
     if (!society.trim()) {
       errs.society = 'Please enter your society / apartment name';
     }
-    if (!parkingSlot.trim()) {
-      errs.parkingSlot = 'Please enter your parking slot no.';
-    }
     if (!flatNo.trim()) {
       errs.flatNo = 'Please enter your flat or house no.';
     }
@@ -65,7 +62,7 @@ export default function Step3_Booking({ bookingData, onBack, onGoHome }) {
       customerName: name.trim(),
       customerPhone: mobile.trim(),
       society: society.trim(),
-      parkingSlot: parkingSlot.trim(),
+      parkingSlot: parkingSlot.trim() || 'Not provided',
       flatNo: flatNo.trim(),
       carNumber: carNumber.trim() || 'Not provided',
       carType: bookingData?.carType,
@@ -99,7 +96,7 @@ export default function Step3_Booking({ bookingData, onBack, onGoHome }) {
       `• *Total Payable:* Rs. ${amount.toLocaleString('en-IN')}\n` +
       `• *Society / Apartment:* ${society.trim()}\n` +
       `• *Flat / House No.:* ${flatNo.trim()}\n` +
-      `• *Parking Slot No.:* ${parkingSlot.trim()}\n\n` +
+      `• *Parking Slot No.:* ${parkingSlot.trim() || 'Not provided'}\n\n` +
       `_Booking request submitted via Tisna Car website._`
     );
 
@@ -335,20 +332,16 @@ export default function Step3_Booking({ bookingData, onBack, onGoHome }) {
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                 <path d="M9 17V7h4a3 3 0 0 1 0 6H9" />
               </svg>
-              <span>Parking Slot <span className="req-star">*</span></span>
+              <span>Parking Slot <span className="opt-tag">(Optional)</span></span>
             </label>
             <input
               id="parking-slot-input"
-              className={`form-input ${errors.parkingSlot ? 'error' : ''}`}
+              className="form-input"
               type="text"
-              placeholder="e.g. B2-45"
+              placeholder="e.g. B2-45 (optional)"
               value={parkingSlot}
-              onChange={(e) => {
-                setParkingSlot(e.target.value.toUpperCase());
-                if (errors.parkingSlot) setErrors(prev => ({ ...prev, parkingSlot: '' }));
-              }}
+              onChange={(e) => setParkingSlot(e.target.value.toUpperCase())}
             />
-            {errors.parkingSlot && <span className="form-error-msg">{errors.parkingSlot}</span>}
           </div>
         </div>
 
